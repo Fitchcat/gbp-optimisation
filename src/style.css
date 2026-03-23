@@ -309,3 +309,39 @@ h1 {
 }
 .tag-auto   { background: rgba(99,102,241,0.2);  color: var(--accent); }
 .tag-manual { background: rgba(255,255,255,0.08); color: var(--text-secondary); }
+
+/* ================================
+   SMART REVIEWS & PRINT STYLES
+   ================================ */
+
+/* Keyword Tags */
+.keyword-tag {
+  padding: 5px 14px;
+  border-radius: 99px;
+  font-size: 0.82rem;
+  border: 1px solid var(--glass-border);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--text-secondary);
+  background: rgba(255,255,255,0.05);
+  user-select: none;
+}
+.keyword-tag:hover { border-color: var(--accent); color: var(--text-primary); }
+.keyword-tag.keyword-selected {
+  background: rgba(99,102,241,0.2);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* PDF Print Styles */
+@media print {
+  .sidebar, .audit-search-bar, button, .audit-legend, #copy-prompt-btn, #export-pdf-btn { display: none !important; }
+  body { background: white !important; color: black !important; }
+  .main-content { padding: 0 !important; }
+  .card { border: 1px solid #ccc !important; background: white !important; break-inside: avoid; }
+  .score-number { color: black !important; }
+  .audit-item { break-inside: avoid; border: 1px solid #eee !important; }
+  .tag-auto { background: #eee !important; color: #333 !important; }
+  h2::before { content: "Rapport d'Audit GBP – "; }
+}
