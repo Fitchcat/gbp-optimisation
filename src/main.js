@@ -18,71 +18,110 @@ const mediaService = {
     }
 };
 
-// Startup Logic
-const savedName = localStorage.getItem('establishmentName') || 'Aquabike Center';
-document.querySelector('header p').innerText = `${savedName} - Paris 15e`;
-
-console.log("GBP Optimizer Dashboard loaded.");
-console.log("Current Freshness Status:", mediaService.checkStatus());
-
-// Navigation Logic
-const views = {
-    dashboard: document.querySelector('.dashboard-grid'),
-    parameters: null // Will create dynamically
+// State Management (Simplified for Demo)
+const state = {
+    establishments: JSON.parse(localStorage.getItem('establishments')) || [
+        { id: '1', name: 'Aquabike Center', location: 'Paris 15e', clients: [] },
+        { id: '2', name: 'Fitness Plus', location: 'Paris 8e', clients: [] }
+    ],
+    currentId: localStorage.getItem('currentEstablishmentId') || '1'
 };
 
+const getCurrentEst = () => state.establishments.find(e => e.id === state.currentId);
+
+// Update UI based on current establishment
+const updateBrandUI = () => {
+    const est = getCurrentEst();
+    document.querySelector('header p').innerText = `${est.name} - ${est.location}`;
+};
+
+updateBrandUI();
+
+// Navigation Logic
 document.querySelectorAll('.nav-item').forEach(item => {
     item.addEventListener('click', (e) => {
         e.preventDefault();
-        
-        // Update active state
         document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
         item.classList.add('active');
         
         const viewName = item.innerText.trim().toLowerCase();
-        console.log("Switching to view:", viewName);
+        
+        // Hide all views
+        document.querySelector('.dashboard-grid').style.display = 'none';
+        if (document.getElementById('params-view')) document.getElementById('params-view').style.display = 'none';
+        if (document.getElementById('clients-view')) document.getElementById('clients-view').style.display = 'none';
         
         if (viewName === 'paramètres') {
-            document.querySelector('.dashboard-grid').style.display = 'none';
-            let paramsView = document.getElementById('params-view');
-            if (!paramsView) {
-                paramsView = document.createElement('div');
-                paramsView.id = 'params-view';
-                paramsView.className = 'card';
-                const savedName = localStorage.getItem('establishmentName') || 'Aquabike Center';
-                paramsView.innerHTML = `
-                    <h2>Paramètres du Compte</h2>
-                    <div style="margin-top: 2rem;">
-                        <label style="display: block; color: var(--text-secondary); margin-bottom: 8px;">Nom de l'établissement</label>
-                        <input type="text" id="establishment-name-input" value="${savedName}" 
-                               style="width: 100%; padding: 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); color: white; border-radius: 8px; margin-bottom: 2rem;">
-                        
-                        <p>ID Etablissement : ChIJuX... (Géré via Google)</p>
-                        <p style="margin-top: 1rem;">Token API Twilio : ••••••••••••••••</p>
-                        <p style="margin-top: 1rem;">Statut Synchro Google : <span class="status-badge status-active">Connecté</span></p>
-                    </div>
-                `;
-                document.querySelector('.main-content').appendChild(paramsView);
-
-                // Handle name change
-                const input = paramsView.querySelector('#establishment-name-input');
-                input.addEventListener('input', (e) => {
-                    const newName = e.target.value;
-                    document.querySelector('header p').innerText = `${newName} - Paris 15e`;
-                    localStorage.setItem('establishmentName', newName);
-                });
-            }
-            paramsView.style.display = 'block';
+            showParametersView();
+        } else if (viewName === 'clients') {
+            showClientsView();
         } else if (viewName === 'dashboard') {
             document.querySelector('.dashboard-grid').style.display = 'grid';
-            if (document.getElementById('params-view')) {
-                document.getElementById('params-view').style.display = 'none';
-            }
         } else {
-            alert("Ce module (" + viewName + ") est en cours de développement.");
+            alert("Ce module est en développement.");
         }
     });
 });
+
+function showParametersView() {
+    let paramsView = document.getElementById('params-view');
+    if (!paramsView) {
+        paramsView = document.createElement('div');
+        paramsView.id = 'params-view';
+        paramsView.className = 'card';
+        document.querySelector('.main-content').appendChild(paramsView);
+    }
+    paramsView.style.display = 'block';
+    paramsView.innerHTML = `
+        <h2>Configuration Multi-Établissements</h2>
+        <div style="margin-top: 2rem;">
+            <label style="display: block; color: var(--text-secondary); margin-bottom: 8px;">Choisir l'établissement actif</label>
+            <select id="est-selector" style="width: 100%; padding: 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); color: white; border-radius: 8px; margin-bottom: 2rem;">
+                ${state.establishments.map(e => `<option value="${e.id}" ${e.id === state.currentId ? 'selected' : ''}>${e.name} (${e.location})</option>`).join('')}
+            </select>
+            <button id="add-est-btn" class="nav-item" style="border: 1px dashed var(--accent); color: var(--accent); background: transparent;">+ Ajouter un établissement</button>
+        </div>
+    `;
+    
+    document.getElementById('est-selector').addEventListener('change', (e) => {
+        state.currentId = e.target.value;
+        localStorage.setItem('currentEstablishmentId', state.currentId);
+        updateBrandUI();
+    });
+}
+
+function showClientsView() {
+    let clientsView = document.getElementById('clients-view');
+    if (!clientsView) {
+        clientsView = document.createElement('div');
+        clientsView.id = 'clients-view';
+        clientsView.className = 'card';
+        document.querySelector('.main-content').appendChild(clientsView);
+    }
+    clientsView.style.display = 'block';
+    const est = getCurrentEst();
+    clientsView.innerHTML = `
+        <h2>Base Clients - ${est.name}</h2>
+        <div style="margin-top: 1rem;">
+            <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+                <thead>
+                    <tr style="text-align: left; color: var(--text-secondary); border-bottom: 1px solid var(--glass-border)">
+                        <th style="padding: 10px;">Nom</th>
+                        <th style="padding: 10px;">Téléphone</th>
+                        <th style="padding: 10px;">Statut</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td style="padding: 10px;">Jean Dupont</td><td style="padding: 10px;">06 12 34 56 78</td><td><span class="status-badge status-active">Fidèle</span></td></tr>
+                    <tr><td style="padding: 10px;">Marie Curie</td><td style="padding: 10px;">06 98 76 54 32</td><td><span class="status-badge status-pending">Nouveau</span></td></tr>
+                </tbody>
+            </table>
+            <button style="margin-top: 2rem; background: var(--accent); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;">
+                Importer une liste (CSV)
+            </button>
+        </div>
+    `;
+}
 
 // Module 1 Button Listener
 document.getElementById('publish-btn').addEventListener('click', () => {
