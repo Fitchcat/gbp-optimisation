@@ -270,3 +270,42 @@ h1 {
   font-size: 0.82rem;
   color: var(--text-secondary);
 }
+
+/* Search Bar */
+.audit-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--card-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-bottom: 1rem;
+  transition: border-color 0.3s ease;
+}
+.audit-search-bar:focus-within { border-color: var(--accent); }
+.audit-search-btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  transition: opacity 0.2s;
+}
+.audit-search-btn:hover { opacity: 0.85; }
+
+/* AUTO / MANUAL tags */
+.audit-mode-tag {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+  margin-left: 8px;
+  vertical-align: middle;
+  letter-spacing: 0.05em;
+}
+.tag-auto   { background: rgba(99,102,241,0.2);  color: var(--accent); }
+.tag-manual { background: rgba(255,255,255,0.08); color: var(--text-secondary); }
