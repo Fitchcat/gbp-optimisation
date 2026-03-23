@@ -1,4 +1,5 @@
-// Module 1: Freshness Média Logic
+import { showAuditView } from './audit.js';
+
 const mediaService = {
     lastUpload: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000), // 4 days ago
     frequency: 'weekly',
@@ -50,11 +51,14 @@ document.querySelectorAll('.nav-item').forEach(item => {
         document.querySelector('.dashboard-grid').style.display = 'none';
         if (document.getElementById('params-view')) document.getElementById('params-view').style.display = 'none';
         if (document.getElementById('clients-view')) document.getElementById('clients-view').style.display = 'none';
+        if (document.getElementById('audit-view')) document.getElementById('audit-view').style.display = 'none';
         
         if (viewName === 'paramètres') {
             showParametersView();
         } else if (viewName === 'clients') {
             showClientsView();
+        } else if (viewName === 'audit gbp') {
+            showAuditView();
         } else if (viewName === 'dashboard') {
             document.querySelector('.dashboard-grid').style.display = 'grid';
         } else {
