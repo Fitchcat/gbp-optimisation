@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GBP Optimizer | Dashboard Premium</title>
+    <link rel="stylesheet" href="./src/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">GBP OPTIMIZER</div>
+        <nav>
+            <a href="#" class="nav-item active"><i class="fas fa-chart-line"></i> Dashboard</a>
+            <a href="#" class="nav-item"><i class="fas fa-robot"></i> Automations</a>
+            <a href="#" class="nav-item"><i class="fas fa-map-marked-alt"></i> SEO Local</a>
+            <a href="#" class="nav-item"><i class="fas fa-cog"></i> Paramètres</a>
+        </nav>
+    </div>
+
+    <main class="main-content">
+        <header>
+            <div>
+                <h1>Tableau de Bord</h1>
+                <p style="color: var(--text-secondary)">Aquabike Center - Paris 15e</p>
+            </div>
+            <div class="status-badge status-active">
+                <i class="fas fa-circle" style="font-size: 8px; margin-right: 6px;"></i> Système en Ligne
+            </div>
+        </header>
+
+        <div class="dashboard-grid">
+            <!-- Module 1: Freshness Média -->
+            <div class="card" id="module-media">
+                <div class="card-header">
+                    <h3>Freshness Média</h3>
+                    <div class="status-badge status-active">Actif</div>
+                </div>
+                <div class="module-info">
+                    <p style="font-size: 0.9rem; color: var(--text-secondary)">Prochaine publication : Lundi prochain</p>
+                    <p style="font-size: 0.9rem; color: var(--text-secondary)">Fréquence : 1 photo / semaine</p>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 75%"></div>
+                </div>
+                <button id="publish-btn" class="nav-item" style="width: 100%; border: 1px solid var(--accent); cursor: pointer; justify-content: center; background: transparent; color: var(--accent); margin-top: 15px;">
+                    Publier Maintenant
+                </button>
+                <p style="font-size: 0.8rem; margin-top: 10px; color: var(--text-primary)">
+                    <i class="fas fa-check-circle" style="color: var(--success)"></i> 12 photos publiées ce trimestre
+                </p>
+            </div>
+
+            <!-- Module 2: Smart Reviews -->
+            <div class="card" id="module-reviews">
+                <div class="card-header">
+                    <h3>Smart Reviews (SMS)</h3>
+                    <div class="status-badge status-pending">En attente</div>
+                </div>
+                <div class="module-info">
+                    <p style="font-size: 0.9rem; color: var(--text-secondary)">Envoi auto 30 min après séance</p>
+                    <p style="font-size: 0.9rem; color: var(--text-secondary)">Suggestions IA activées</p>
+                </div>
+                <button class="nav-item" style="width: 100%; border: none; cursor: pointer; justify-content: center; background: var(--accent); color: white;">
+                    Configurer
+                </button>
+            </div>
+
+            <!-- Module 3: Post Scheduling -->
+            <div class="card" id="module-posts">
+                <div class="card-header">
+                    <h3>Posts Automatiques</h3>
+                    <div class="status-badge status-pending">Bientôt</div>
+                </div>
+                <div class="module-info">
+                    <p style="font-size: 0.9rem; color: var(--text-secondary)">IA Content : 0 posts cette semaine</p>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="app"></div>
+    </main>
+
+    <script type="module" src="./src/main.js"></script>
+</body>
+</html>
