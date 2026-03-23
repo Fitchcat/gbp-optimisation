@@ -18,7 +18,10 @@ const mediaService = {
     }
 };
 
-// Initial state
+// Startup Logic
+const savedName = localStorage.getItem('establishmentName') || 'Aquabike Center';
+document.querySelector('header p').innerText = `${savedName} - Paris 15e`;
+
 console.log("GBP Optimizer Dashboard loaded.");
 console.log("Current Freshness Status:", mediaService.checkStatus());
 
@@ -46,15 +49,28 @@ document.querySelectorAll('.nav-item').forEach(item => {
                 paramsView = document.createElement('div');
                 paramsView.id = 'params-view';
                 paramsView.className = 'card';
+                const savedName = localStorage.getItem('establishmentName') || 'Aquabike Center';
                 paramsView.innerHTML = `
                     <h2>Paramètres du Compte</h2>
                     <div style="margin-top: 2rem;">
-                        <p>ID Etablissement : ChIJuX... (Aquabike Center)</p>
+                        <label style="display: block; color: var(--text-secondary); margin-bottom: 8px;">Nom de l'établissement</label>
+                        <input type="text" id="establishment-name-input" value="${savedName}" 
+                               style="width: 100%; padding: 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); color: white; border-radius: 8px; margin-bottom: 2rem;">
+                        
+                        <p>ID Etablissement : ChIJuX... (Géré via Google)</p>
                         <p style="margin-top: 1rem;">Token API Twilio : ••••••••••••••••</p>
                         <p style="margin-top: 1rem;">Statut Synchro Google : <span class="status-badge status-active">Connecté</span></p>
                     </div>
                 `;
                 document.querySelector('.main-content').appendChild(paramsView);
+
+                // Handle name change
+                const input = paramsView.querySelector('#establishment-name-input');
+                input.addEventListener('input', (e) => {
+                    const newName = e.target.value;
+                    document.querySelector('header p').innerText = `${newName} - Paris 15e`;
+                    localStorage.setItem('establishmentName', newName);
+                });
             }
             paramsView.style.display = 'block';
         } else if (viewName === 'dashboard') {
