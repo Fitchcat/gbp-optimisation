@@ -317,6 +317,9 @@
     }
 
     function renderSummary(p) {
+        // Sync header subtitle with the audited business name
+        const sub = document.getElementById('brand-subtitle');
+        if (sub && p.name) sub.textContent = p.name + (p.formatted_address ? ' – ' + p.formatted_address : '');
         const stars = '⭐'.repeat(Math.round(p.rating||0));
         document.getElementById('place-summary').innerHTML = `
           <div style="flex:1">
