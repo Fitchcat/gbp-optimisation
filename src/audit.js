@@ -125,18 +125,22 @@ async function runAudit() {
     const resultsEl = document.getElementById('audit-results');
     
     statusEl.style.display = 'flex';
+    statusEl.innerHTML = `<i class="fas fa-spinner fa-spin" style="color: var(--accent);"></i> Analyse de la fiche Google en cours…`;
     resultsEl.style.display = 'none';
     document.getElementById('score-number').innerText = '…';
 
     try {
+        // Call the serverless scraper (no API key needed)
+        const response = await fetch(`/api/audit?q=${encodeURIComponent(query)}`);
+        
         let placeData;
-
-        if (GOOGLE_PLACES_API_KEY === 'YOUR_API_KEY_HERE') {
-            // MOCK DATA for demo (no API key needed)
-            await new Promise(r => setTimeout(r, 1200));
+        if (!response.ok) {
+            // Fallback to demo data if scraper fails (e.g. local dev)
+            console.warn('Scraper not available, using demo data');
+            await new Promise(r => setTimeout(r, 800));
             placeData = getMockData(query);
         } else {
-            placeData = await fetchFromPlacesAPI(query);
+            placeData = await response.json();
         }
 
         statusEl.style.display = 'none';
@@ -144,7 +148,14 @@ async function runAudit() {
         renderPlaceSummary(placeData);
         renderCriteriaList(placeData);
     } catch (err) {
-        statusEl.innerHTML = `<i class="fas fa-exclamation-triangle" style="color:var(--danger)"></i> Erreur : ${err.message}`;
+        // Graceful fallback to demo if network issue
+        console.warn('Network error, switching to demo:', err.message);
+        await new Promise(r => setTimeout(r, 500));
+        const placeData = getMockData(query);
+        statusEl.style.display = 'none';
+        resultsEl.style.display = 'block';
+        renderPlaceSummary(placeData);
+        renderCriteriaList(placeData);
     }
 }
 
@@ -211,7 +222,7 @@ function renderPlaceSummary(place) {
         <div style="min-width: 160px; text-align: center;">
             <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 4px;">Source</div>
             <div style="background: rgba(99,102,241,0.15); padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; color: var(--accent);">
-                ${GOOGLE_PLACES_API_KEY === 'YOUR_API_KEY_HERE' ? '🔬 Données simulées (démo)' : '🌐 Google Places API'}
+                ${place.source === 'google_scrape' ? '🔍 Scrape Google (réel)' : '🔬 Données simulées (démo)'}
             </div>
         </div>
     `;
