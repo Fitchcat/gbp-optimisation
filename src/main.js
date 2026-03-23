@@ -39,36 +39,56 @@ const updateBrandUI = () => {
 
 updateBrandUI();
 
-// Navigation Logic
-document.querySelectorAll('.nav-item').forEach(item => {
+// Central navigation function
+function navigateTo(viewId) {
+    // Update sidebar active state
+    document.querySelectorAll('.nav-item[data-view]').forEach(n => {
+        n.classList.toggle('active', n.dataset.view === viewId);
+    });
+
+    // Hide all dynamic views + the grid
+    document.querySelector('.dashboard-grid').style.display = 'none';
+    ['params-view', 'clients-view', 'audit-view', 'reviews-view'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    });
+
+    switch (viewId) {
+        case 'dashboard':
+            document.querySelector('.dashboard-grid').style.display = 'grid';
+            break;
+        case 'audit':
+            showAuditView();
+            break;
+        case 'reviews':
+            showSmartReviewsView();
+            break;
+        case 'clients':
+            showClientsView();
+            break;
+        case 'params':
+            showParametersView();
+            break;
+        default:
+            alert('Ce module est en développement.');
+            document.querySelector('.dashboard-grid').style.display = 'grid';
+    }
+}
+
+// Sidebar nav clicks
+document.querySelectorAll('.nav-item[data-view]').forEach(item => {
     item.addEventListener('click', (e) => {
         e.preventDefault();
-        document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-        item.classList.add('active');
-        
-        const viewName = item.innerText.trim().toLowerCase();
-        
-        // Hide all views
-        document.querySelector('.dashboard-grid').style.display = 'none';
-        if (document.getElementById('params-view')) document.getElementById('params-view').style.display = 'none';
-        if (document.getElementById('clients-view')) document.getElementById('clients-view').style.display = 'none';
-        if (document.getElementById('audit-view')) document.getElementById('audit-view').style.display = 'none';
-        if (document.getElementById('reviews-view')) document.getElementById('reviews-view').style.display = 'none';
-        
-        if (viewName === 'paramètres') {
-            showParametersView();
-        } else if (viewName === 'clients') {
-            showClientsView();
-        } else if (viewName === 'audit gbp') {
-            showAuditView();
-        } else if (viewName === 'smart reviews') {
-            showSmartReviewsView();
-        } else if (viewName === 'dashboard') {
-            document.querySelector('.dashboard-grid').style.display = 'grid';
-        } else {
-            alert("Ce module est en développement.");
-        }
+        navigateTo(item.dataset.view);
     });
+});
+
+// Dashboard card shortcut buttons
+document.querySelectorAll('.go-to-audit').forEach(btn => {
+    btn.addEventListener('click', () => navigateTo('audit'));
+});
+document.querySelectorAll('.go-to-reviews').forEach(btn => {
+    btn.addEventListener('click', () => navigateTo('reviews'));
 });
 
 function showParametersView() {
