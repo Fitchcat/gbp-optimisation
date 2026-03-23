@@ -22,13 +22,61 @@ const mediaService = {
 console.log("GBP Optimizer Dashboard loaded.");
 console.log("Current Freshness Status:", mediaService.checkStatus());
 
-// Add interactivity
+// Navigation Logic
+const views = {
+    dashboard: document.querySelector('.dashboard-grid'),
+    parameters: null // Will create dynamically
+};
+
+document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        // Update active state
+        document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+        item.classList.add('active');
+        
+        const viewName = item.innerText.trim().toLowerCase();
+        console.log("Switching to view:", viewName);
+        
+        if (viewName === 'paramètres') {
+            document.querySelector('.dashboard-grid').style.display = 'none';
+            let paramsView = document.getElementById('params-view');
+            if (!paramsView) {
+                paramsView = document.createElement('div');
+                paramsView.id = 'params-view';
+                paramsView.className = 'card';
+                paramsView.innerHTML = `
+                    <h2>Paramètres du Compte</h2>
+                    <div style="margin-top: 2rem;">
+                        <p>ID Etablissement : ChIJuX... (Aquabike Center)</p>
+                        <p style="margin-top: 1rem;">Token API Twilio : ••••••••••••••••</p>
+                        <p style="margin-top: 1rem;">Statut Synchro Google : <span class="status-badge status-active">Connecté</span></p>
+                    </div>
+                `;
+                document.querySelector('.main-content').appendChild(paramsView);
+            }
+            paramsView.style.display = 'block';
+        } else if (viewName === 'dashboard') {
+            document.querySelector('.dashboard-grid').style.display = 'grid';
+            if (document.getElementById('params-view')) {
+                document.getElementById('params-view').style.display = 'none';
+            }
+        } else {
+            alert("Ce module (" + viewName + ") est en cours de développement.");
+        }
+    });
+});
+
+// Module 1 Button Listener
 document.getElementById('publish-btn').addEventListener('click', () => {
     mediaService.simulateUpload();
     document.querySelector('.progress-fill').style.width = '100%';
-    document.querySelector('.status-active').innerText = 'À jour';
+    const badge = document.querySelector('#module-media .status-active');
+    if (badge) badge.innerText = 'À jour';
 });
 
+// Hover effects for all cards
 document.querySelectorAll('.card').forEach(card => {
     card.addEventListener('mouseenter', () => {
         card.style.borderColor = 'var(--accent)';
