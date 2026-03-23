@@ -4,11 +4,101 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GBP Optimizer | Dashboard Premium</title>
-    <link rel="stylesheet" href="./src/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --accent: #6366f1;
+            --accent-glow: rgba(99, 102, 241, 0.3);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: var(--bg-dark); color: var(--text-primary); min-height: 100vh; display: flex; overflow-x: hidden; }
+
+        /* Sidebar */
+        .sidebar { width: 220px; min-width: 220px; background: rgba(15, 23, 42, 0.95); border-right: 1px solid var(--glass-border); padding: 1.5rem 1rem; display: flex; flex-direction: column; backdrop-filter: blur(10px); }
+        .logo { font-size: 1.1rem; font-weight: 800; margin-bottom: 2rem; background: linear-gradient(to right, #818cf8, #c084fc); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .nav-item { display: flex; align-items: center; padding: 0.65rem 0.9rem; border-radius: 0.5rem; color: var(--text-secondary); text-decoration: none; margin-bottom: 4px; transition: all 0.3s ease; font-size: 0.9rem; cursor: pointer; }
+        .nav-item:hover, .nav-item.active { background: var(--card-bg); color: var(--text-primary); }
+        .nav-item i { margin-right: 10px; width: 16px; }
+
+        /* Main */
+        .main-content { flex: 1; padding: 2rem; overflow-y: auto; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        h1 { font-size: 2rem; font-weight: 700; }
+        h2 { font-size: 1.4rem; font-weight: 700; }
+
+        /* Cards */
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+        .card { background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 1rem; padding: 1.5rem; backdrop-filter: blur(10px); transition: transform 0.3s ease; animation: fadeIn 0.5s ease forwards; }
+        .card:hover { transform: translateY(-4px); border-color: var(--accent); }
+        .card-header { display: flex; justify-content: space-between; margin-bottom: 1.2rem; }
+
+        /* Badges */
+        .status-badge { padding: 4px 12px; border-radius: 99px; font-size: 0.75rem; font-weight: 600; }
+        .status-active { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+        .status-pending { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+
+        /* Progress */
+        .progress-bar { height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--accent); box-shadow: 0 0 10px var(--accent-glow); transition: width 0.5s ease-out; }
+
+        /* Animations */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ── AUDIT MODULE ── */
+        .score-gauge { display: flex; align-items: baseline; gap: 4px; padding: 12px 20px; border-radius: 12px; border: 2px solid var(--glass-border); background: rgba(0,0,0,0.3); transition: all 0.4s ease; min-width: 110px; justify-content: center; }
+        .score-number { font-size: 2.5rem; font-weight: 800; transition: color 0.4s ease; }
+        .score-label { font-size: 1rem; color: var(--text-secondary); }
+        .score-excellent { border-color: var(--success); } .score-excellent .score-number { color: var(--success); }
+        .score-good { border-color: var(--warning); } .score-good .score-number { color: var(--warning); }
+        .score-poor { border-color: var(--danger); } .score-poor .score-number { color: var(--danger); }
+        .audit-list { display: flex; flex-direction: column; gap: 12px; }
+        .audit-item { background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 10px; padding: 16px; animation: fadeIn 0.4s ease both; transition: all 0.3s ease; }
+        .audit-item.done { border-color: rgba(34, 197, 94, 0.4); background: rgba(34, 197, 94, 0.05); }
+        .audit-item-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
+        .audit-check-group { display: flex; align-items: flex-start; gap: 14px; flex: 1; }
+        .audit-label { font-weight: 600; font-size: 0.95rem; }
+        .audit-description { font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px; line-height: 1.5; }
+        .audit-weight { font-size: 0.8rem; color: var(--accent); font-weight: 700; white-space: nowrap; padding-top: 2px; }
+        .audit-tip { margin-top: 12px; padding: 10px 14px; background: rgba(245, 158, 11, 0.08); border-left: 3px solid var(--warning); border-radius: 0 6px 6px 0; font-size: 0.82rem; color: var(--text-secondary); line-height: 1.5; }
+        .audit-toggle { width: 42px; min-width: 42px; height: 24px; background: rgba(255,255,255,0.1); border-radius: 99px; cursor: pointer; padding: 3px; transition: background 0.3s ease; margin-top: 2px; }
+        .audit-toggle.active { background: var(--success); }
+        .toggle-inner { width: 18px; height: 18px; background: white; border-radius: 50%; transition: transform 0.3s ease; box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+        .audit-toggle.active .toggle-inner { transform: translateX(18px); }
+        .audit-legend { display: flex; gap: 2rem; margin-bottom: 1.5rem; font-size: 0.82rem; color: var(--text-secondary); }
+        .audit-search-bar { display: flex; align-items: center; gap: 12px; background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 12px; padding: 14px 18px; margin-bottom: 1rem; transition: border-color 0.3s ease; }
+        .audit-search-bar:focus-within { border-color: var(--accent); }
+        .audit-search-btn { background: var(--accent); color: white; border: none; padding: 8px 18px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; white-space: nowrap; transition: opacity 0.2s; }
+        .audit-search-btn:hover { opacity: 0.85; }
+        .audit-mode-tag { font-size: 0.65rem; font-weight: 700; padding: 1px 6px; border-radius: 4px; margin-left: 8px; vertical-align: middle; letter-spacing: 0.05em; }
+        .tag-auto { background: rgba(99,102,241,0.2); color: var(--accent); }
+        .tag-manual { background: rgba(255,255,255,0.08); color: var(--text-secondary); }
+
+        /* ── SMART REVIEWS ── */
+        .keyword-tag { padding: 5px 14px; border-radius: 99px; font-size: 0.82rem; border: 1px solid var(--glass-border); cursor: pointer; transition: all 0.2s ease; color: var(--text-secondary); background: rgba(255,255,255,0.05); user-select: none; }
+        .keyword-tag:hover { border-color: var(--accent); color: var(--text-primary); }
+        .keyword-tag.keyword-selected { background: rgba(99,102,241,0.2); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+
+        /* ── PRINT / PDF ── */
+        @media print {
+            .sidebar, .audit-search-bar, button, .audit-legend, #copy-prompt-btn, #export-pdf-btn { display: none !important; }
+            body { background: white !important; color: black !important; }
+            .main-content { padding: 0 !important; }
+            .card { border: 1px solid #ccc !important; background: white !important; break-inside: avoid; }
+            .score-number { color: black !important; }
+            .audit-item { break-inside: avoid; border: 1px solid #eee !important; }
+        }
+    </style>
 </head>
 <body>
     <div class="sidebar">
@@ -36,19 +126,16 @@
         </header>
 
         <div class="dashboard-grid">
-            <!-- Module 1: Freshness Média -->
             <div class="card" id="module-media">
                 <div class="card-header">
                     <h3>Freshness Média</h3>
                     <div class="status-badge status-active">Actif</div>
                 </div>
-                <div class="module-info">
-                    <p style="font-size: 0.9rem; color: var(--text-secondary)">Prochaine publication : Lundi prochain</p>
-                    <p style="font-size: 0.9rem; color: var(--text-secondary)">Fréquence : 1 photo / semaine</p>
+                <div style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                    <p>Prochaine publication : Lundi prochain</p>
+                    <p style="margin-top: 4px;">Fréquence : 1 photo / semaine</p>
                 </div>
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: 75%"></div>
-                </div>
+                <div class="progress-bar"><div class="progress-fill" style="width: 75%"></div></div>
                 <button id="publish-btn" class="nav-item" style="width: 100%; border: 1px solid var(--accent); cursor: pointer; justify-content: center; background: transparent; color: var(--accent); margin-top: 15px;">
                     Publier Maintenant
                 </button>
@@ -57,33 +144,43 @@
                 </p>
             </div>
 
-            <!-- Module 2: Smart Reviews -->
             <div class="card" id="module-reviews">
                 <div class="card-header">
                     <h3>Smart Reviews (SMS)</h3>
                     <div class="status-badge status-pending">En attente</div>
                 </div>
-                <div class="module-info">
-                    <p style="font-size: 0.9rem; color: var(--text-secondary)">Envoi auto 30 min après séance</p>
-                    <p style="font-size: 0.9rem; color: var(--text-secondary)">Suggestions IA activées</p>
+                <div style="font-size: 0.9rem; color: var(--text-secondary);">
+                    <p>Envoi auto 30 min après séance</p>
+                    <p style="margin-top: 4px;">Suggestions IA activées</p>
                 </div>
-                <button class="nav-item" style="width: 100%; border: none; cursor: pointer; justify-content: center; background: var(--accent); color: white;">
+                <button class="nav-item go-to-reviews" style="width: 100%; border: none; cursor: pointer; justify-content: center; background: var(--accent); color: white; margin-top: 1rem;">
                     Configurer
                 </button>
             </div>
 
-            <!-- Module 3: Post Scheduling -->
             <div class="card" id="module-posts">
                 <div class="card-header">
                     <h3>Posts Automatiques</h3>
                     <div class="status-badge status-pending">Bientôt</div>
                 </div>
-                <div class="module-info">
-                    <p style="font-size: 0.9rem; color: var(--text-secondary)">IA Content : 0 posts cette semaine</p>
+                <div style="font-size: 0.9rem; color: var(--text-secondary);">
+                    <p>IA Content : 0 posts cette semaine</p>
                 </div>
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: 0%"></div>
+                <div class="progress-bar" style="margin-top: 1rem;"><div class="progress-fill" style="width: 0%"></div></div>
+            </div>
+
+            <div class="card" id="module-audit">
+                <div class="card-header">
+                    <h3>Audit GBP</h3>
+                    <div class="status-badge status-active">Disponible</div>
                 </div>
+                <div style="font-size: 0.9rem; color: var(--text-secondary);">
+                    <p>Score sur 100 basé sur 10 critères</p>
+                    <p style="margin-top: 4px;">Scraping Google automatique</p>
+                </div>
+                <button class="nav-item go-to-audit" style="width: 100%; border: 1px solid var(--accent); cursor: pointer; justify-content: center; background: transparent; color: var(--accent); margin-top: 1rem;">
+                    Lancer l'Audit
+                </button>
             </div>
         </div>
 
