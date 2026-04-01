@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ad & Post Generator | Premium WebApp</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts pour l'interface -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Colors - Premium Dark Mode / Glassmorphism */
+            --bg-color: #0b0f19;
+            --bg-gradient: radial-gradient(circle at 15% 50%, #1e1b4b, #0b0f19 60%);
+            --card-bg: rgba(20, 25, 40, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --accent: #8b5cf6;
+            --accent-glow: rgba(139, 92, 246, 0.4);
+            --accent-secondary: #ec4899;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Inter', system-ui, sans-serif; 
+            background: var(--bg-gradient); 
+            color: var(--text-primary); 
+            min-height: 100vh; 
+            display: flex; 
+            overflow: hidden;
+            background-attachment: fixed;
+        }
+
+        /* ─── ANIMATIONS ─── */
+        @keyframes slideInLeft { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulseGlow { 0% { box-shadow: 0 0 0 0 var(--accent-glow); } 70% { box-shadow: 0 0 0 10px rgba(139, 92, 246, 0); } 100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); } }
+
+        /* ─── LAYOUT ─── */
+        .sidebar {
+            width: 420px;
+            min-width: 420px;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            padding: 2rem;
+            height: 100vh;
+            overflow-y: auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        .preview-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* ─── TYPOGRAPHY ─── */
+        h1 { font-family: 'Outfit', sans-serif; font-size: 1.8rem; font-weight: 800; margin-bottom: 0.5rem; background: linear-gradient(to right, #a78bfa, #f472b6); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: #fff; }
+        p.subtitle { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.5; }
+
+        /* ─── WIZARD PROGRESS ─── */
+        .wizard-steps { display: flex; align-items: center; margin-bottom: 2rem; gap: 10px; }
+        .wizard-step-node { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; color: var(--text-secondary); transition: all 0.3s ease; }
+        .wizard-step-node.active { background: var(--accent); color: white; border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); }
+        .wizard-step-node.done { background: rgba(139,92,246,0.2); color: var(--accent); border-color: var(--accent); }
+        .wizard-line { flex: 1; height: 2px; background: var(--glass-border); position: relative; }
+        .wizard-line-fill { position: absolute; top: 0; left: 0; height: 100%; background: var(--accent); width: 0%; transition: width 0.4s ease; }
+        
+        /* ─── FORMS & CONTROLS ─── */
+        .step-container { display: none; animation: slideInLeft 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; flex-direction: column; gap: 1.5rem; }
+        .step-container.active { display: flex; }
+
+        .form-group { display: flex; flex-direction: column; gap: 8px; }
+        label { font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); }
+        
+        select, input[type="text"], input[type="password"], textarea {
+            width: 100%;
+            padding: 12px 14px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+        select:focus, input:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-glow); }
+        textarea { resize: vertical; min-height: 80px; }
+
+        .radio-pills { display: flex; gap: 10px; flex-wrap: wrap; }
+        .radio-pill { 
+            flex: 1; min-width: 80px; text-align: center;
+            padding: 10px 14px; background: rgba(255,255,255,0.03); 
+            border: 1px solid var(--glass-border); border-radius: 10px; 
+            cursor: pointer; font-size: 0.85rem; font-weight: 600; 
+            transition: all 0.2s; user-select: none;
+            color: var(--text-secondary);
+        }
+        .radio-pill input { display: none; }
+        .radio-pill.selected { background: rgba(139,92,246,0.15); border-color: var(--accent); color: var(--accent); }
+
+        /* ─── BUTTONS ─── */
+        .btn { padding: 12px 24px; border-radius: 10px; border: none; font-family: inherit; font-weight: 600; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; }
+        .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-secondary)); color: white; box-shadow: 0 4px 15px var(--accent-glow); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--accent-glow); }
+        .btn-outline { background: transparent; border: 1px solid var(--glass-border); color: var(--text-primary); }
+        .btn-outline:hover { background: rgba(255,255,255,0.05); }
+        
+        .wizard-nav { display: flex; gap: 12px; margin-top: 1rem; }
+        .wizard-nav .btn { flex: 1; }
+
+        /* ─── CANVAS PREVIEW ─── */
+        .canvas-wrapper {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            max-height: 85vh;
+            max-width: 90%;
+        }
+        canvas {
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            max-width: 100%;
+            max-height: 80vh;
+            object-fit: contain;
+            background: #111;
+        }
+
+        .canvas-toolbar {
+            position: absolute;
+            bottom: -60px;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 99px;
+            padding: 8px 16px;
+            display: flex;
+            gap: 12px;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s;
+        }
+        .canvas-wrapper:hover .canvas-toolbar { opacity: 1; transform: translateY(0); }
+        .toolbar-btn { background: none; border: none; color: var(--text-primary); cursor: pointer; padding: 6px; font-size: 1.1rem; transition: color 0.2s; }
+        .toolbar-btn:hover { color: var(--accent); }
+
+        /* Fullscreen generic loader */
+        #loader {
+            position: absolute; inset: 0; background: rgba(11,15,25,0.8); backdrop-filter: blur(5px);
+            display: none; align-items: center; justify-content: center; flex-direction: column; gap: 15px;
+            z-index: 100; border-radius: 16px;
+        }
+        .spinner { width: 40px; height: 40px; border: 3px solid rgba(139,92,246,0.2); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* API Key Toggle Section */
+        .api-keys-section {
+            background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); border-radius: 12px; padding: 14px; margin-top: 1rem;
+        }
+
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <h1>Ad & Post Generator</h1>
+        <p class="subtitle">Création premium avec Intelligence Artificielle (OpenAI / Fal.ai)</p>
+
+        <div class="wizard-steps">
+            <div class="wizard-step-node active" id="node-1">1</div>
+            <div class="wizard-line"><div class="wizard-line-fill" id="progress-line"></div></div>
+            <div class="wizard-step-node" id="node-2">2</div>
+        </div>
+
+        <!-- ÉTAPE 1 : STRUCTURE -->
+        <div id="step-1" class="step-container active">
+            <div class="form-group">
+                <label>Type de contenu</label>
+                <div class="radio-pills" id="opt-type">
+                    <label class="radio-pill selected"><input type="radio" name="p_type" value="image" checked> Image</label>
+                    <label class="radio-pill"><input type="radio" name="p_type" value="carousel"> Carousel</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Format (Ratio)</label>
+                <div class="radio-pills" id="opt-format">
+                    <label class="radio-pill selected"><input type="radio" name="p_format" value="1:1" checked> 1:1 (Carré)</label>
+                    <label class="radio-pill"><input type="radio" name="p_format" value="9:16"> 9:16 (Story)</label>
+                    <label class="radio-pill"><input type="radio" name="p_format" value="16:9"> 16:9 (Paysage)</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Incrustation de Texte (Design dynamique)</label>
+                <div class="radio-pills" id="opt-overlay">
+                    <label class="radio-pill selected"><input type="radio" name="p_overlay" value="yes" checked> Avec Titre & Bouton</label>
+                    <label class="radio-pill"><input type="radio" name="p_overlay" value="no"> Image vierge</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Moteur IA de Génération</label>
+                <select id="p_ai_provider">
+                    <option value="openai">OpenAI (DALL-E 3) - Robuste & Créatif</option>
+                    <option value="falai">Fal.ai (FLUX) - Photoréalisme extrême</option>
+                    <option value="wavespeed">Wavespeed AI - Multi-modèles</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="wavespeed-model-group" style="display:none; margin-top:-10px;">
+                <label>Modèle Wavespeed à utiliser</label>
+                <select id="p_ai_model_select">
+                    <option value="wavespeed-ai/flux-dev">Flux Dev (Recommandé)</option>
+                    <option value="wavespeed-ai/flux-schnell">Flux Schnell (Rapide)</option>
+                    <option value="google/nano-banana-pro/text-to-image">Nano Banana Pro</option>
+                    <option value="google/nano-banana-2/text-to-image">Nano Banana 2</option>
+                    <option value="bytedance/seedream-v5.0-lite">Seadream v5.0 Elite</option>
+                    <option value="bytedance/seedream-v4.5">Seadream v4.5</option>
+                    <option value="custom">Saisir un autre modèle...</option>
+                </select>
+                <input type="text" id="p_ai_model_custom" style="display:none; margin-top:8px;" placeholder="Ex: custom-ai/nom-du-modele">
+            </div>
+
+            <div class="wizard-nav" style="margin-top:auto; padding-top:20px;">
+                <button class="btn btn-primary" id="btn-next" style="width:100%">Contenu & Design <i class="fas fa-arrow-right"></i></button>
+            </div>
+        </div>
+
+        <!-- ÉTAPE 2 : CONTENU & DESIGN -->
+        <div id="step-2" class="step-container">
+            <div class="form-group">
+                <label>Description du visuel pour l'IA (Prompt)</label>
+                <textarea id="p_prompt" placeholder="Ex: Une photo professionnelle et lumineuse d'une séance de fitness en salle, style moderne..."></textarea>
+            </div>
+
+            <div id="overlay-options" style="display:flex; flex-direction:column; gap:1.5rem;">
+                <div class="form-group">
+                    <label>Titre principal accrocheur</label>
+                    <input type="text" id="p_title" value="Offre de Rentrée" placeholder="Titre de votre post">
+                </div>
+                <div class="form-group">
+                    <label>Sous-titre / Court texte</label>
+                    <input type="text" id="p_subtitle" value="-50% sur le premier mois" placeholder="Sous-titre">
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <div class="form-group" style="flex:1;">
+                        <label>Typographie</label>
+                        <select id="p_font">
+                            <option value="Inter">Inter (Moderne)</option>
+                            <option value="Outfit">Outfit (Dynamique)</option>
+                            <option value="Montserrat">Montserrat (Élégant)</option>
+                            <option value="Bebas Neue">Bebas Neue (Impact)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="width:80px;">
+                        <label>Couleur</label>
+                        <input type="color" id="p_color" value="#ffffff" style="height:42px; padding:2px;">
+                    </div>
+                </div>
+            </div>
+
+            <div class="api-keys-section">
+                <div class="form-group">
+                    <label><i class="fas fa-key"></i> Clé API <span id="lbl-api-provider">OpenAI</span></label>
+                    <input type="password" id="p_api_key" placeholder="Entrez la clé secrète pour générer">
+                    <p style="font-size:0.7rem; color:var(--text-secondary); margin-top:4px;">Stockée localement et uniquement envoyée à votre backend Vercel sécurisé.</p>
+                </div>
+                <!-- Champ avancé masqué pour changer l'URL Wavespeed en cas d'erreur 404 persistante -->
+                <div class="form-group" id="ws-endpoint-group" style="display:none; margin-top:10px; border-top:1px solid rgba(255,255,255,0.1); padding-top:10px;">
+                    <label style="color:#f59e0b">Endpoint URL Wavespeed (Avancé)</label>
+                    <input type="text" id="p_ws_endpoint" value="https://api.wavespeed.ai/api/v3" style="font-size:0.75rem" placeholder="Base URL de l'API">
+                </div>
+            </div>
+
+            <div class="wizard-nav" style="margin-top:auto; padding-top:20px;">
+                <button class="btn btn-outline" id="btn-prev"><i class="fas fa-arrow-left"></i></button>
+                <button class="btn btn-primary" id="btn-generate" style="flex:3;"><i class="fas fa-magic"></i> Générer le Visuel</button>
+            </div>
+        </div>
+    </aside>
+
+    <main class="preview-area">
+        <div class="canvas-wrapper">
+            <!-- Canvas is 1080x1080 natively for 1:1 -->
+            <canvas id="preview-canvas" width="1080" height="1080"></canvas>
+            
+            <div id="loader">
+                <div class="spinner"></div>
+                <div id="loader-text" style="font-size:0.9rem; font-weight:600; color:var(--accent);">Génération par l'IA en cours...</div>
+            </div>
+
+            <div class="canvas-toolbar">
+                <button class="toolbar-btn" id="btn-download" title="Télécharger"><i class="fas fa-download"></i></button>
+                <button class="toolbar-btn" id="btn-refresh" title="Mettre à jour le texte"><i class="fas fa-sync-alt"></i></button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Injection du script de logique frontend -->
+    <script src="src/ad_generator.js"></script>
+</body>
+</html>

@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Audit Google Business Profile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;500;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #0D7A5F;
+    --teal-light: #E0F4EE;
+    --teal-mid: #1AA882;
+    --amber: #C47A1A;
+    --amber-light: #FDF0DA;
+    --red: #C0392B;
+    --red-light: #FDECEA;
+    --blue: #1A5FA8;
+    --blue-light: #E8F1FC;
+    --green: #2E7D32;
+    --green-light: #E8F5E9;
+    --gray-50: #FAFAF8;
+    --gray-100: #F4F3EF;
+    --gray-200: #E8E6E0;
+    --gray-400: #9B9890;
+    --gray-600: #5C5A54;
+    --gray-900: #1A1916;
+    --font-display: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+    --radius: 10px;
+    --radius-lg: 16px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--gray-100);
+    color: var(--gray-900);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* ── LAYOUT ── */
+  .app { max-width: 880px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+  /* ── HEADER ── */
+  .header {
+    margin-bottom: 2rem;
+    padding: 2rem 2.5rem;
+    background: var(--gray-900);
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 2rem;
+  }
+  .header-left h1 {
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  .header-left h1 span { color: var(--teal-mid); }
+  .header-left p { color: var(--gray-400); font-size: 13px; margin-top: 6px; }
+  .header-score {
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .score-big {
+    font-family: var(--font-display);
+    font-size: 3.5rem;
+    font-weight: 800;
+    line-height: 1;
+    transition: color 0.4s;
+  }
+  .score-label { font-size: 12px; color: var(--gray-400); margin-top: 4px; font-family: var(--font-mono); }
+  .progress-bar {
+    width: 140px;
+    height: 4px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+    margin-top: 8px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1), background 0.4s;
+  }
+
+  /* ── CLIENT INPUT ── */
+  .client-wrap { margin-bottom: 1.5rem; position: relative; }
+  .client-wrap input {
+    width: 100%;
+    padding: 12px 16px;
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 500;
+    background: #fff;
+    border: 1.5px solid var(--gray-200);
+    border-radius: var(--radius);
+    color: var(--gray-900);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .client-wrap input:focus { border-color: var(--teal-mid); }
+  .client-wrap input::placeholder { color: var(--gray-400); font-weight: 400; }
+
+  /* ── STATUS BAR ── */
+  .status {
+    background: #fff;
+    border: 1.5px solid var(--gray-200);
+    border-radius: var(--radius);
+    padding: 14px 20px;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .status-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: background 0.3s;
+  }
+  .status-text { font-size: 14px; font-weight: 500; color: var(--gray-900); flex: 1; }
+  .status-sub { font-size: 12px; color: var(--gray-400); font-family: var(--font-mono); }
+
+  /* ── CRITERIA ── */
+  .criteria { display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.5rem; }
+
+  .crit {
+    background: #fff;
+    border: 1.5px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .crit:hover { border-color: var(--gray-400); }
+  .crit.answered { border-color: transparent; }
+
+  .crit-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .crit-num {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 500;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+
+  .crit-title {
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--gray-900);
+    flex: 1;
+  }
+
+  .crit-pts-pill {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+
+  .crit-weight {
+    font-size: 11px;
+    color: var(--gray-400);
+    font-family: var(--font-mono);
+    flex-shrink: 0;
+  }
+
+  .chevron {
+    color: var(--gray-400);
+    font-size: 12px;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+  .crit.open .chevron { transform: rotate(180deg); }
+
+  .crit-body {
+    display: none;
+    padding: 0 18px 16px;
+    border-top: 1px solid var(--gray-200);
+    margin: 0 18px;
+  }
+  .crit.open .crit-body { display: block; padding-top: 14px; }
+
+  .crit-desc {
+    font-size: 13px;
+    color: var(--gray-600);
+    margin-bottom: 12px;
+  }
+
+  .options { display: flex; flex-direction: column; gap: 6px; }
+
+  .opt {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border: 1.5px solid var(--gray-200);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .opt:hover { background: var(--gray-50); border-color: var(--gray-400); }
+  .opt.selected {
+    background: var(--blue-light);
+    border-color: var(--blue);
+  }
+
+  .opt-radio {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    border: 2px solid var(--gray-400);
+    flex-shrink: 0;
+    transition: all 0.15s;
+    position: relative;
+  }
+  .opt.selected .opt-radio {
+    border-color: var(--blue);
+    background: var(--blue);
+  }
+  .opt.selected .opt-radio::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #fff;
+  }
+
+  .opt-label {
+    font-size: 13px;
+    color: var(--gray-900);
+    flex: 1;
+    line-height: 1.4;
+  }
+  .opt.selected .opt-label { color: var(--blue); font-weight: 500; }
+
+  .opt-pts {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--gray-400);
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+  .opt.selected .opt-pts { color: var(--blue); }
+
+  .reco-box {
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: #FFFBF0;
+    border-left: 3px solid var(--amber);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    font-size: 13px;
+    color: var(--amber);
+    line-height: 1.5;
+  }
+
+  /* ── ACTIONS ── */
+  .actions {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    margin-bottom: 2rem;
+  }
+
+  .btn-primary {
+    padding: 13px 20px;
+    background: var(--teal);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    letter-spacing: 0.01em;
+  }
+  .btn-primary:hover { background: var(--teal-mid); }
+  .btn-primary:active { transform: scale(0.98); }
+
+  .btn-secondary {
+    padding: 13px 18px;
+    background: transparent;
+    color: var(--gray-600);
+    border: 1.5px solid var(--gray-200);
+    border-radius: var(--radius);
+    font-family: var(--font-body);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .btn-secondary:hover { border-color: var(--gray-400); color: var(--gray-900); }
+
+  /* ── PROMPT OUTPUT ── */
+  .prompt-output {
+    display: none;
+    background: var(--gray-900);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  .prompt-output.visible { display: block; }
+  .prompt-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .prompt-title {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--gray-400);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .copy-btn {
+    padding: 5px 14px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 6px;
+    color: #fff;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.14); }
+  .prompt-text {
+    padding: 20px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: #C8E6C9;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 480px;
+    overflow-y: auto;
+  }
+
+  /* ── MINI METRICS ── */
+  .metrics-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: #fff;
+    border: 1.5px solid var(--gray-200);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    text-align: center;
+  }
+  .metric-val {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .metric-lbl { font-size: 11px; color: var(--gray-400); font-family: var(--font-mono); }
+
+  /* scrollbar for prompt */
+  .prompt-text::-webkit-scrollbar { width: 4px; }
+  .prompt-text::-webkit-scrollbar-track { background: transparent; }
+  .prompt-text::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-left">
+      <h1>Audit <span>GBP</span></h1>
+      <p>Google Business Profile — 10 critères d'optimisation locale</p>
+    </div>
+    <div class="header-score">
+      <div class="score-big" id="scoreBig">—</div>
+      <div class="score-label">/ 100 pts</div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLIENT INPUT -->
+  <div class="client-wrap">
+    <input type="text" id="clientName" placeholder="Nom du client ou établissement..." />
+  </div>
+
+  <!-- METRICS -->
+  <div class="metrics-row">
+    <div class="metric">
+      <div class="metric-val" id="mScore" style="color:var(--gray-400)">—</div>
+      <div class="metric-lbl">score actuel</div>
+    </div>
+    <div class="metric">
+      <div class="metric-val" id="mAnswered" style="color:var(--teal)">0</div>
+      <div class="metric-lbl">critères évalués</div>
+    </div>
+    <div class="metric">
+      <div class="metric-val" id="mWeak" style="color:var(--red)">—</div>
+      <div class="metric-lbl">points faibles</div>
+    </div>
+    <div class="metric">
+      <div class="metric-val" id="mGain" style="color:var(--green)">—</div>
+      <div class="metric-lbl">pts à gagner</div>
+    </div>
+  </div>
+
+  <!-- STATUS -->
+  <div class="status">
+    <div class="status-dot" id="statusDot" style="background:var(--gray-200)"></div>
+    <div>
+      <div class="status-text" id="statusText">Commencez l'audit en sélectionnant chaque critère</div>
+      <div class="status-sub" id="statusSub">0 / 10 critères renseignés</div>
+    </div>
+  </div>
+
+  <!-- CRITERIA -->
+  <div class="criteria" id="criteriaList"></div>
+
+  <!-- ACTIONS -->
+  <div class="actions">
+    <button class="btn-primary" id="generateBtn" onclick="generatePrompt()">
+      Générer le prompt d'audit IA →
+    </button>
+    <button class="btn-secondary" onclick="resetAll()">Réinitialiser</button>
+  </div>
+
+  <!-- PROMPT OUTPUT -->
+  <div class="prompt-output" id="promptOutput">
+    <div class="prompt-header">
+      <span class="prompt-title">Prompt généré — prêt à coller dans Gemini / ChatGPT / Claude</span>
+      <button class="copy-btn" onclick="copyPrompt()">Copier</button>
+    </div>
+    <div class="prompt-text" id="promptText"></div>
+  </div>
+
+</div>
+
+<script>
+const CRITERIA = [
+  {
+    id: 1, weight: 15, title: "Photos et visuels",
+    desc: "Nombre et qualité des photos publiées sur la fiche GBP",
+    options: [
+      { pts: 0,  label: "Moins de 5 photos ou aucune" },
+      { pts: 5,  label: "5 à 14 photos, qualité variable" },
+      { pts: 10, label: "15 à 19 photos de bonne qualité" },
+      { pts: 15, label: "20 photos et + : lieu, clients, activité, équipe" },
+    ],
+    recos: [
+      "Urgent : publiez immédiatement 20+ photos HD couvrant extérieur, intérieur, activité, équipe et ambiance.",
+      "Ajoutez des photos clients (avec consentement) et d'équipe pour atteindre 20+ visuels.",
+      "Ajoutez les photos manquantes (clients, équipe) pour passer la barre des 20 visuels.",
+      null,
+    ]
+  },
+  {
+    id: 2, weight: 15, title: "Avis clients",
+    desc: "Volume, note moyenne et régularité des avis Google",
+    options: [
+      { pts: 0,  label: "Moins de 10 avis ou note < 4,0" },
+      { pts: 5,  label: "10 à 29 avis, note entre 4,0 et 4,4" },
+      { pts: 10, label: "30 à 99 avis, note ≥ 4,5" },
+      { pts: 15, label: "100+ avis, note ≥ 4,5, avis récents réguliers" },
+    ],
+    recos: [
+      "Urgent : installez un QR code à l'accueil. Sans avis, la fiche est quasi invisible dans le local pack.",
+      "Lancez une campagne SMS/QR pour accélérer la collecte. Visez 30+ avis avec mots-clés locaux.",
+      "Maintenez le rythme : 3 à 5 avis par mois. Encouragez les avis détaillés avec mots-clés géographiques.",
+      null,
+    ]
+  },
+  {
+    id: 3, weight: 10, title: "Réponses aux avis",
+    desc: "Systématisme et qualité des réponses de l'établissement",
+    options: [
+      { pts: 0, label: "Aucune réponse aux avis" },
+      { pts: 3, label: "Réponses occasionnelles (moins de 50%)" },
+      { pts: 7, label: "Réponses fréquentes mais sans mots-clés locaux" },
+      { pts: 10, label: "100% de réponses sous 48h avec mots-clés et ville" },
+    ],
+    recos: [
+      "Répondez à tous vos avis dès aujourd'hui, même les anciens. Chaque réponse = opportunité SEO.",
+      "Visez 100% de réponses. Glissez systématiquement ville + service dans chaque réponse.",
+      "Intégrez systématiquement ville et service dans vos réponses pour booster le référencement local.",
+      null,
+    ]
+  },
+  {
+    id: 4, weight: 10, title: "Google Posts",
+    desc: "Fréquence et pertinence des publications sur la fiche",
+    options: [
+      { pts: 0, label: "Aucun post publié" },
+      { pts: 3, label: "Posts occasionnels (moins d'1 par mois)" },
+      { pts: 7, label: "1 à 3 posts par mois" },
+      { pts: 10, label: "1 post ou plus par semaine (offres, événements, nouveautés)" },
+    ],
+    recos: [
+      "Commencez par 1 post cette semaine. Offre spéciale, événement ou actualité. La fiche doit sembler vivante.",
+      "Passez à 1 post minimum par semaine. Planifiez un calendrier éditorial mensuel.",
+      "Maintenez la cadence. Variez les formats : offres, témoignages, avant/après, nouveaux créneaux.",
+      null,
+    ]
+  },
+  {
+    id: 5, weight: 10, title: "Services et produits",
+    desc: "Section services/produits complète avec tarifs",
+    options: [
+      { pts: 0, label: "Section vide ou absente" },
+      { pts: 4, label: "Quelques services listés sans détails" },
+      { pts: 7, label: "Services listés avec descriptions" },
+      { pts: 10, label: "Services + tarifs + fiches produits (abonnements, cartes)" },
+    ],
+    recos: [
+      "Remplissez immédiatement la section Services : chaque service est un mini-contenu SEO. Ajoutez les tarifs.",
+      "Complétez avec les tarifs et créez des fiches produits pour vos abonnements et cartes.",
+      "Ajoutez les tarifs et créez des fiches produits. Cette section est sous-exploitée par la concurrence.",
+      null,
+    ]
+  },
+  {
+    id: 6, weight: 10, title: "Questions & Réponses",
+    desc: "FAQ pro-active intégrée directement dans la fiche GBP",
+    options: [
+      { pts: 0, label: "Aucune question / réponse" },
+      { pts: 4, label: "1 à 2 questions sans réponse de l'établissement" },
+      { pts: 7, label: "3 à 5 questions avec réponses" },
+      { pts: 10, label: "6+ questions pro-actives avec réponses complètes" },
+    ],
+    recos: [
+      "Créez vous-même vos questions fréquentes : prix, réservation, équipements. Réduisez la friction prospect.",
+      "Répondez aux questions existantes et ajoutez 4+ questions stratégiques supplémentaires.",
+      "Ajoutez encore des Q&R. Objectif : 6+ couvrant prix, débutants, équipements, horaires, parking.",
+      null,
+    ]
+  },
+  {
+    id: 7, weight: 10, title: "Lien de réservation",
+    desc: "Bouton ou lien de réservation directe configuré dans GBP",
+    options: [
+      { pts: 0, label: "Aucun lien de réservation" },
+      { pts: 5, label: "Lien vers le site web uniquement" },
+      { pts: 8, label: "URL de rendez-vous directe vers le planning en ligne" },
+      { pts: 10, label: "Intégration native 'Reserve with Google' activée" },
+    ],
+    recos: [
+      "Critique : sans lien de réservation, vous perdez des clients chaque jour. Ajoutez l'URL planning dans GBP.",
+      "Ajoutez l'URL directe de votre planning dans GBP (champ URL de rendez-vous). 15 minutes de travail.",
+      "Parfait pour Deciplus. Vérifiez si une intégration native 'Reserve with Google' est possible via un partenaire.",
+      null,
+    ]
+  },
+  {
+    id: 8, weight: 10, title: "Cohérence NAP",
+    desc: "Nom, Adresse, Téléphone identiques sur tous les supports web",
+    options: [
+      { pts: 0, label: "Incohérences majeures (adresse ou tél différents)" },
+      { pts: 4, label: "Quelques incohérences mineures détectées" },
+      { pts: 7, label: "Cohérent sur GBP mais non vérifié sur annuaires" },
+      { pts: 10, label: "NAP 100% cohérent sur GBP, site, Pages Jaunes, annuaires" },
+    ],
+    recos: [
+      "Urgent : corrigez immédiatement les incohérences NAP. Elles pénalisent fortement le classement local.",
+      "Auditez vos annuaires (Pages Jaunes, Yelp, Tripadvisor) et corrigez les divergences.",
+      "Vérifiez sur BrightLocal ou PlePer que le NAP est cohérent sur tous les annuaires locaux.",
+      null,
+    ]
+  },
+  {
+    id: 9, weight: 5, title: "Catégories et description",
+    desc: "Catégorie principale pertinente + description optimisée SEO",
+    options: [
+      { pts: 0, label: "Catégorie incorrecte ou description absente" },
+      { pts: 2, label: "Catégorie correcte, description générique" },
+      { pts: 4, label: "Bonne catégorie + description avec mots-clés" },
+      { pts: 5, label: "Catégorie(s) + secondaires + description 750 car. avec mots-clés en tête" },
+    ],
+    recos: [
+      "Choisissez la bonne catégorie principale et rédigez une description de 750 caractères avec les mots-clés en début.",
+      "Enrichissez la description : bénéfices clients, équipements, ville. Ajoutez des catégories secondaires.",
+      "Ajoutez 2-3 catégories secondaires et placez vos mots-clés principaux dans les 250 premiers caractères.",
+      null,
+    ]
+  },
+  {
+    id: 10, weight: 5, title: "Position dans le Local Pack",
+    desc: "Positionnement dans le top 3 Google Maps sur les requêtes cibles",
+    options: [
+      { pts: 0, label: "Non visible dans le local pack (hors top 10)" },
+      { pts: 2, label: "Visible entre la position 4 et 10" },
+      { pts: 4, label: "Top 3 sur certaines requêtes secondaires" },
+      { pts: 5, label: "Top 3 sur les requêtes principales (service + ville)" },
+    ],
+    recos: [
+      "La fiche est invisible. Toutes les autres optimisations sont prioritaires pour remonter dans les résultats.",
+      "Travaillez la collecte d'avis et la complétude de la fiche pour passer dans le top 3.",
+      "Continuez à optimiser pour atteindre le top 3 sur toutes vos requêtes cibles.",
+      null,
+    ]
+  },
+];
+
+const state = { answers: {}, open: null };
+
+function getScore() {
+  return CRITERIA.reduce((s, c) => s + (state.answers[c.id] !== undefined ? c.options[state.answers[c.id]].pts : 0), 0);
+}
+
+function getAnsweredCount() {
+  return Object.keys(state.answers).length;
+}
+
+function getWeakCount() {
+  return CRITERIA.filter(c => {
+    const a = state.answers[c.id];
+    return a !== undefined && (c.options[a].pts / c.weight) < 0.7;
+  }).length;
+}
+
+function getMaxGain() {
+  return CRITERIA.reduce((s, c) => {
+    const a = state.answers[c.id];
+    if (a === undefined) return s;
+    return s + (c.weight - c.options[a].pts);
+  }, 0);
+}
+
+function getStatusInfo(score, answered) {
+  if (answered === 0) return { text: "Commencez l'audit en sélectionnant chaque critère", color: "var(--gray-200)" };
+  if (answered < 5)  return { text: "Audit en cours — continuez pour obtenir le score complet", color: "var(--amber)" };
+  if (score >= 85)   return { text: "Fiche excellente — optimisation avancée, maintenez le niveau", color: "var(--green)" };
+  if (score >= 65)   return { text: "Bonne fiche — quelques optimisations pour dominer la concurrence", color: "var(--teal-mid)" };
+  if (score >= 40)   return { text: "Fiche moyenne — potentiel inexploité, actions prioritaires à lancer", color: "var(--amber)" };
+  return { text: "Fiche faible — actions urgentes requises pour être visible sur Google", color: "var(--red)" };
+}
+
+function getScoreColor(score) {
+  if (score >= 75) return "var(--green)";
+  if (score >= 50) return "var(--amber)";
+  return "var(--red)";
+}
+
+function getPillStyle(pts, weight) {
+  const pct = pts / weight;
+  if (pct >= 0.8) return { bg: "var(--green-light)", color: "var(--green)" };
+  if (pct >= 0.5) return { bg: "var(--amber-light)", color: "var(--amber)" };
+  if (pct >  0)   return { bg: "var(--red-light)", color: "var(--red)" };
+  return { bg: "var(--gray-100)", color: "var(--gray-600)" };
+}
+
+function updateHeader(score, answered) {
+  const color = answered > 0 ? getScoreColor(score) : "var(--gray-400)";
+  const el = document.getElementById("scoreBig");
+  el.textContent = answered > 0 ? score : "—";
+  el.style.color = color;
+
+  const pct = Math.round(score);
+  const fill = document.getElementById("progressFill");
+  fill.style.width = pct + "%";
+  fill.style.background = color;
+}
+
+function updateMetrics(score, answered) {
+  const mScore = document.getElementById("mScore");
+  const mAnswered = document.getElementById("mAnswered");
+  const mWeak = document.getElementById("mWeak");
+  const mGain = document.getElementById("mGain");
+
+  if (answered > 0) {
+    mScore.textContent = score;
+    mScore.style.color = getScoreColor(score);
+  } else {
+    mScore.textContent = "—";
+    mScore.style.color = "var(--gray-400)";
+  }
+  mAnswered.textContent = answered;
+
+  const weak = getWeakCount();
+  const gain = getMaxGain();
+  mWeak.textContent = answered > 0 ? weak : "—";
+  mGain.textContent = answered > 0 ? "+" + gain : "—";
+}
+
+function updateStatus(score, answered) {
+  const info = getStatusInfo(score, answered);
+  document.getElementById("statusDot").style.background = info.color;
+  document.getElementById("statusText").textContent = info.text;
+  document.getElementById("statusSub").textContent = answered + " / 10 critères renseignés";
+}
+
+function render() {
+  const score = getScore();
+  const answered = getAnsweredCount();
+
+  updateHeader(score, answered);
+  updateMetrics(score, answered);
+  updateStatus(score, answered);
+
+  const list = document.getElementById("criteriaList");
+  list.innerHTML = "";
+
+  CRITERIA.forEach(c => {
+    const sel = state.answers[c.id];
+    const isAnswered = sel !== undefined;
+    const isOpen = state.open === c.id;
+    const pts = isAnswered ? c.options[sel].pts : null;
+    const pill = isAnswered ? getPillStyle(pts, c.weight) : null;
+
+    const div = document.createElement("div");
+    div.className = "crit" + (isOpen ? " open" : "") + (isAnswered ? " answered" : "");
+    if (isAnswered) {
+      div.style.borderColor = pill.color;
+      div.style.borderOpacity = "0.4";
+      div.style.borderColor = pill.color + "66";
+    }
+
+    const numStyle = isAnswered
+      ? `background:${pill.bg};color:${pill.color}`
+      : `background:var(--gray-100);color:var(--gray-600)`;
+
+    const pillHTML = isAnswered
+      ? `<span class="crit-pts-pill" style="background:${pill.bg};color:${pill.color}">${pts}/${c.weight}</span>`
+      : `<span class="crit-pts-pill" style="background:var(--gray-100);color:var(--gray-400)">—/${c.weight}</span>`;
+
+    const recoHTML = (isAnswered && c.recos[sel])
+      ? `<div class="reco-box">${c.recos[sel]}</div>` : "";
+
+    div.innerHTML = `
+      <div class="crit-head" onclick="toggle(${c.id})">
+        <div class="crit-num" style="${numStyle}">${String(c.id).padStart(2,"0")}</div>
+        <span class="crit-title">${c.title}</span>
+        ${pillHTML}
+        <span class="crit-weight">${c.weight} pts</span>
+        <span class="chevron">▾</span>
+      </div>
+      <div class="crit-body">
+        <div class="crit-desc">${c.desc}</div>
+        <div class="options">
+          ${c.options.map((o, i) => `
+            <div class="opt ${sel === i ? "selected" : ""}" onclick="selectOpt(${c.id},${i},event)">
+              <div class="opt-radio"></div>
+              <span class="opt-label">${o.label}</span>
+              <span class="opt-pts">${o.pts} pts</span>
+            </div>
+          `).join("")}
+        </div>
+        ${recoHTML}
+      </div>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function toggle(id) {
+  state.open = state.open === id ? null : id;
+  render();
+}
+
+function selectOpt(id, idx, e) {
+  e.stopPropagation();
+  state.answers[id] = idx;
+  render();
+}
+
+function resetAll() {
+  state.answers = {};
+  state.open = null;
+  document.getElementById("clientName").value = "";
+  document.getElementById("promptOutput").classList.remove("visible");
+  render();
+}
+
+function generatePrompt() {
+  const score = getScore();
+  const answered = getAnsweredCount();
+  const client = document.getElementById("clientName").value.trim() || "le client";
+
+  const details = CRITERIA.map(c => {
+    const a = state.answers[c.id];
+    if (a === undefined) return `- ${c.title} : Non évalué (${c.weight} pts max)`;
+    return `- ${c.title} : ${c.options[a].pts}/${c.weight} pts — "${c.options[a].label}"`;
+  }).join("\n");
+
+  const weakPoints = CRITERIA
+    .filter(c => state.answers[c.id] !== undefined && (c.options[state.answers[c.id]].pts / c.weight) < 0.7)
+    .map(c => c.title);
+
+  const unanswered = CRITERIA
+    .filter(c => state.answers[c.id] === undefined)
+    .map(c => c.title);
+
+  const prompt = `Tu es un expert en SEO local et Google Business Profile.
+
+CLIENT : ${client}
+SCORE GLOBAL : ${score}/100 (${answered}/10 critères évalués)
+
+DÉTAIL PAR CRITÈRE :
+${details}
+
+POINTS FAIBLES PRIORITAIRES : ${weakPoints.length > 0 ? weakPoints.join(", ") : "Aucun — fiche bien optimisée"}
+${unanswered.length > 0 ? `CRITÈRES NON ÉVALUÉS : ${unanswered.join(", ")}` : ""}
+
+Ta mission :
+
+1. DIAGNOSTIC (3-5 phrases)
+   Synthèse de l'état actuel de la fiche GBP, points forts et points bloquants.
+
+2. TOP 3 ACTIONS URGENTES (impact/effort)
+   Pour chaque action : étapes concrètes, temps estimé, impact attendu sur le classement.
+
+3. PLAN D'ACTION 30 JOURS
+   Semaine par semaine, avec une tâche principale et son objectif mesurable.
+
+4. DESCRIPTION GBP OPTIMISÉE (750 caractères max)
+   Texte prêt à copier-coller. Mots-clés importants dans les 250 premiers caractères.
+   Inclure : activité principale, ville, bénéfices clients, équipements, appel à l'action.
+
+5. 6 QUESTIONS/RÉPONSES (prêtes à copier dans GBP)
+   Questions fréquentes des prospects. Réponses courtes, naturelles, avec mots-clés locaux.
+
+6. MODÈLE SMS POST-SÉANCE (collecte d'avis)
+   SMS à envoyer 30 minutes après la fin d'une séance. Inclure : prénom, service, ville, lien GBP.
+
+7. STRATÉGIE CONCURRENTIELLE
+   Comment dominer le Local Pack sur les requêtes principales (service + ville) en 60 jours.
+
+Sois précis, actionnable et adapté au secteur du sport/bien-être local.
+`;
+
+  document.getElementById("promptText").textContent = prompt;
+  document.getElementById("promptOutput").classList.add("visible");
+  document.getElementById("promptOutput").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function copyPrompt() {
+  const text = document.getElementById("promptText").textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector(".copy-btn");
+    btn.textContent = "Copié ✓";
+    setTimeout(() => btn.textContent = "Copier", 2000);
+  });
+}
+
+render();
+</script>
+</body>
+</html>

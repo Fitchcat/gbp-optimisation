@@ -1,215 +1,4 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GBP Optimizer | Dashboard Premium</title>
-    <meta name="description" content="Optimisez automatiquement votre Google Business Profile : audit, Smart Reviews SMS, Freshness Média.">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-dark: #0f172a;
-            --card-bg: rgba(30, 41, 59, 0.85);
-            --accent: #6366f1;
-            --accent-glow: rgba(99, 102, 241, 0.3);
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --success: #22c55e;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --glass-border: rgba(255, 255, 255, 0.1);
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg-dark); color: var(--text-primary); min-height: 100vh; display: flex; overflow-x: hidden; }
 
-        /* Sidebar */
-        .sidebar { width: 220px; min-width: 220px; background: rgba(15,23,42,0.97); border-right: 1px solid var(--glass-border); padding: 1.5rem 1rem; display: flex; flex-direction: column; }
-        .logo { font-size: 1rem; font-weight: 800; margin-bottom: 2rem; background: linear-gradient(to right,#818cf8,#c084fc); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 0.05em; }
-        .nav-item { display: flex; align-items: center; padding: 0.6rem 0.9rem; border-radius: 0.5rem; color: var(--text-secondary); text-decoration: none; margin-bottom: 3px; transition: all 0.2s ease; font-size: 0.85rem; cursor: pointer; border: none; background: none; width: 100%; text-align: left; }
-        .nav-item:hover, .nav-item.active { background: var(--card-bg); color: var(--text-primary); }
-        .nav-item i { margin-right: 10px; width: 14px; }
-
-        /* Main */
-        .main-content { flex: 1; padding: 2rem; overflow-y: auto; }
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-        h1 { font-size: 1.8rem; font-weight: 700; }
-        h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.25rem; }
-
-        /* Cards */
-        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap: 1.2rem; }
-        .card { background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 1rem; padding: 1.4rem; backdrop-filter: blur(10px); transition: transform 0.25s ease, border-color 0.25s ease; animation: fadeIn 0.4s ease forwards; }
-        .card:hover { transform: translateY(-4px); border-color: var(--accent); }
-        .card-header { display: flex; justify-content: space-between; margin-bottom: 1rem; }
-
-        /* Badges */
-        .status-badge { padding: 3px 10px; border-radius: 99px; font-size: 0.72rem; font-weight: 600; }
-        .status-active { background: rgba(34,197,94,0.2); color: #4ade80; }
-        .status-pending { background: rgba(245,158,11,0.2); color: #fbbf24; }
-
-        /* Progress */
-        .progress-bar { height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
-        .progress-fill { height: 100%; background: var(--accent); box-shadow: 0 0 10px var(--accent-glow); transition: width 0.5s ease-out; }
-
-        /* Buttons */
-        .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.85rem; font-family: inherit; transition: opacity 0.2s; }
-        .btn-primary { background: var(--accent); color: white; }
-        .btn-outline { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
-        .btn:hover { opacity: 0.85; }
-        .btn-full { width: 100%; justify-content: center; margin-top: 0.9rem; }
-
-        /* Score Gauge */
-        .score-gauge { display: flex; align-items: baseline; gap: 3px; padding: 10px 18px; border-radius: 12px; border: 2px solid var(--glass-border); background: rgba(0,0,0,0.3); transition: all 0.4s ease; min-width: 100px; justify-content: center; }
-        .score-number { font-size: 2.2rem; font-weight: 800; transition: color 0.4s ease; }
-        .score-label { font-size: 0.9rem; color: var(--text-secondary); }
-        .score-excellent { border-color: var(--success); } .score-excellent .score-number { color: var(--success); }
-        .score-good { border-color: var(--warning); } .score-good .score-number { color: var(--warning); }
-        .score-poor { border-color: var(--danger); } .score-poor .score-number { color: var(--danger); }
-
-        /* Audit */
-        .audit-search-bar { display: flex; align-items: center; gap: 10px; background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 12px; padding: 12px 16px; margin-bottom: 1rem; transition: border-color 0.3s; }
-        .audit-search-bar:focus-within { border-color: var(--accent); }
-        .audit-list { display: flex; flex-direction: column; gap: 10px; }
-        .audit-item { background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 10px; padding: 14px; animation: fadeIn 0.35s ease both; transition: all 0.25s ease; }
-        .audit-item.done { border-color: rgba(34,197,94,0.4); background: rgba(34,197,94,0.05); }
-        .audit-item-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
-        .audit-check-group { display: flex; align-items: flex-start; gap: 12px; flex: 1; }
-        .audit-label { font-weight: 600; font-size: 0.9rem; }
-        .audit-weight { font-size: 0.78rem; color: var(--accent); font-weight: 700; white-space: nowrap; padding-top: 2px; }
-        .audit-tip { margin-top: 10px; padding: 8px 12px; background: rgba(245,158,11,0.08); border-left: 3px solid var(--warning); border-radius: 0 6px 6px 0; font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5; }
-        .audit-legend { display: flex; gap: 1.5rem; margin-bottom: 1.2rem; font-size: 0.8rem; color: var(--text-secondary); flex-wrap: wrap; }
-
-        /* Toggle Switch */
-        .audit-toggle { width: 40px; min-width: 40px; height: 22px; background: rgba(255,255,255,0.1); border-radius: 99px; cursor: pointer; padding: 2px; transition: background 0.3s ease; margin-top: 2px; }
-        .audit-toggle.active { background: var(--success); }
-        .toggle-inner { width: 18px; height: 18px; background: white; border-radius: 50%; transition: transform 0.3s ease; box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
-        .audit-toggle.active .toggle-inner { transform: translateX(18px); }
-
-        /* Tags */
-        .audit-mode-tag { font-size: 0.62rem; font-weight: 700; padding: 1px 5px; border-radius: 4px; margin-left: 6px; vertical-align: middle; letter-spacing: 0.05em; }
-        .tag-auto { background: rgba(99,102,241,0.2); color: var(--accent); }
-        .tag-manual { background: rgba(255,255,255,0.08); color: var(--text-secondary); }
-
-        /* Keywords */
-        .keyword-tag { padding: 4px 12px; border-radius: 99px; font-size: 0.8rem; border: 1px solid var(--glass-border); cursor: pointer; transition: all 0.2s ease; color: var(--text-secondary); background: rgba(255,255,255,0.05); user-select: none; }
-        .keyword-tag:hover { border-color: var(--accent); color: var(--text-primary); }
-        .keyword-tag.keyword-selected { background: rgba(99,102,241,0.2); border-color: var(--accent); color: var(--accent); font-weight: 600; }
-
-        /* Client switcher */
-        #client-switcher-menu .cs-item { display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:.82rem;cursor:pointer;transition:background .15s;border:none;background:none;color:var(--text-primary);width:100%;text-align:left; }
-        #client-switcher-menu .cs-item:hover { background:rgba(255,255,255,.06); }
-        #client-switcher-menu .cs-item.cs-active { color:var(--accent);font-weight:600; }
-        #client-switcher-menu .cs-add { color:var(--accent);border-top:1px solid var(--glass-border); }
-
-        /* Reply Reviews */
-        .review-card { background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 10px; padding: 16px; animation: fadeIn 0.35s ease both; border-left: 4px solid var(--glass-border); }
-        .review-card.rating-high { border-left-color: var(--success); }
-        .review-card.rating-mid  { border-left-color: var(--warning); }
-        .review-card.rating-low  { border-left-color: var(--danger); }
-        .review-card.replied-card { opacity: 0.6; }
-        .reply-textarea { width: 100%; background: rgba(0,0,0,0.25); border: 1px solid var(--accent); border-radius: 8px; color: var(--text-primary); font-family: inherit; font-size: .83rem; line-height: 1.6; padding: 10px 12px; resize: vertical; min-height: 90px; margin-top: 10px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
-        .reply-textarea:focus { box-shadow: 0 0 0 2px var(--accent-glow); }
-        .reply-tab { padding: 5px 14px; border-radius: 99px; border: 1px solid var(--glass-border); cursor: pointer; font-size: .8rem; background: none; color: var(--text-secondary); font-family: inherit; transition: all 0.2s; }
-        .reply-tab.active { background: var(--accent); color: white; border-color: var(--accent); }
-        .star-filled { color: #fbbf24; } .star-empty { color: rgba(255,255,255,0.15); }
-
-        /* Animations */
-        /* Advanced Audit Styles */
-        .adv-metric { background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); border-radius: 12px; padding: 14px; text-align: center; }
-        .adv-metric-val { font-size: 1.6rem; font-weight: 800; line-height: 1; margin-bottom: 4px; }
-        .adv-metric-lbl { font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; }
-        .adv-crit-item { background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 12px; margin-bottom: 10px; overflow: hidden; transition: all 0.2s; }
-        .adv-crit-item.open { border-color: var(--accent); }
-        .adv-crit-head { padding: 14px 18px; cursor: pointer; display: flex; align-items: center; gap: 12px; }
-        .adv-crit-num { width: 28px; height: 28px; border-radius: 8px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); }
-        .adv-crit-item.answered .adv-crit-num { background: var(--accent); color: white; }
-        .adv-crit-title { font-weight: 600; font-size: 0.9rem; flex: 1; }
-        .adv-crit-pill { font-size: 0.75rem; padding: 2px 10px; border-radius: 20px; background: rgba(255,255,255,0.08); color: var(--text-secondary); }
-        .adv-crit-body { display: none; padding: 0 18px 18px; border-top: 1px solid var(--glass-border); margin: 0 18px; padding-top: 15px; }
-        .adv-crit-item.open .adv-crit-body { display: block; }
-        .adv-opt { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid var(--glass-border); border-radius: 10px; cursor: pointer; margin-bottom: 6px; transition: all 0.2s; font-size: 0.82rem; }
-        .adv-opt:hover { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.2); }
-        .adv-opt.selected { background: rgba(99,102,241,0.12); border-color: var(--accent); color: var(--text-primary); }
-        .adv-radio { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--glass-border); flex-shrink: 0; position: relative; }
-        .adv-opt.selected .adv-radio { border-color: var(--accent); background: var(--accent); }
-        .adv-opt.selected .adv-radio::after { content:''; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:6px; height:6px; border-radius:50%; background:white; }
-        .adv-reco { margin-top: 12px; padding: 10px 14px; background: rgba(245,158,11,0.08); border-left: 3px solid var(--warning); border-radius: 0 8px 8px 0; font-size: 0.78rem; color: var(--warning); line-height: 1.5; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* Enhanced Action Plan Styles */
-        .plan-tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid var(--glass-border); padding-bottom: 10px; }
-        .plan-tab { padding: 6px 16px; border-radius: 20px; font-size: 0.75rem; cursor: pointer; background: rgba(255,255,255,0.05); color: var(--text-secondary); transition: all 0.2s; border: 1px solid transparent; }
-        .plan-tab.active { background: var(--accent); color: white; border-color: var(--accent); }
-        .plan-panel { display: none; animation: fadeIn 0.3s ease; }
-        .plan-panel.active { display: block; }
-        .task-card { background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 12px; padding: 12px 16px; margin-bottom: 8px; display: flex; gap: 12px; }
-        .task-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
-        .task-meta { display: flex; gap: 6px; margin-top: 8px; }
-        .plan-chip { font-size: 0.65rem; padding: 2px 8px; border-radius: 20px; background: rgba(255,255,255,0.08); color: var(--text-secondary); }
-        .plan-content-card { background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
-        .plan-content-text { font-size: 0.8rem; line-height: 1.6; color: var(--text-primary); background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; margin: 10px 0; white-space: pre-wrap; font-family: monospace; }
-        
-        /* Print */
-        @media print {
-            .sidebar, .audit-search-bar, .btn, .audit-legend { display: none !important; }
-            body { background: white !important; color: black !important; }
-            .card { border: 1px solid #ccc !important; background: white !important; break-inside: avoid; }
-            .score-number { color: black !important; }
-        }
-    </style>
-</head>
-<body>
-    <div class="sidebar">
-        <div class="logo">GBP OPTIMIZER</div>
-        <nav>
-            <a class="nav-item active" data-view="dashboard"><i class="fas fa-chart-line"></i> Dashboard</a>
-            <a class="nav-item" data-view="audit"><i class="fas fa-search"></i> Audit GBP</a>
-
-            <a class="nav-item" data-view="reply-reviews"><i class="fas fa-reply"></i> Réponses IA</a>
-            <a class="nav-item" data-view="clients"><i class="fas fa-users"></i> Clients</a>
-            <a class="nav-item" data-view="advanced-audit"><i class="fas fa-award"></i> Audit Avancé</a>
-            <a class="nav-item" data-view="automations"><i class="fas fa-robot"></i> Automations</a>
-            <a class="nav-item" data-view="params"><i class="fas fa-cog"></i> Paramètres</a>
-            <a href="ad_post_generator.html" class="nav-item" target="_blank"><i class="fas fa-wand-magic-sparkles"></i> Générateur Ad & Post (News)</a>
-        </nav>
-        <div style="margin-top:auto;padding-top:1rem;border-top:1px solid var(--glass-border)">
-            <div style="font-size:.68rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;padding:0 .9rem">Client actif</div>
-            <div id="client-switcher" style="position:relative">
-                <button id="client-switcher-btn" style="width:100%;background:var(--card-bg);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:.5rem;padding:.55rem .9rem;font-size:.82rem;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:6px;text-align:left">
-                    <span id="client-switcher-label" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
-                    <i class="fas fa-chevron-down" style="font-size:.65rem;flex-shrink:0;color:var(--text-secondary)"></i>
-                </button>
-                <div id="client-switcher-menu" style="display:none;position:absolute;bottom:calc(100% + 4px);left:0;right:0;background:#1e293b;border:1px solid var(--glass-border);border-radius:.5rem;overflow:hidden;z-index:100;box-shadow:0 8px 24px rgba(0,0,0,.4)"></div>
-            </div>
-        </div>
-    </div>
-
-    <main class="main-content">
-        <header>
-            <div style="display:flex;align-items:center;gap:20px;flex:1">
-                <div>
-                    <h1>Tableau de Bord</h1>
-                    <div style="display:flex;align-items:center;gap:12px;margin-top:2px">
-                        <p id="brand-subtitle" style="color:var(--text-secondary);margin:0">Établissement – Lieu</p>
-                        <div id="header-gbp-link"></div>
-                    </div>
-                </div>
-            </div>
-            <span class="status-badge status-active"><i class="fas fa-circle" style="font-size:7px;margin-right:5px"></i> Système en Ligne</span>
-        </header>
-
-        <div class="dashboard-grid" id="dashboard-grid">
-            <!-- Dynamically populated by renderDashboard() -->
-        </div>
-
-        <!-- Dynamic views injected here -->
-        <div id="views-container"></div>
-    </main>
-
-    <script>
     // ============================================================
     //  GBP OPTIMIZER – All logic in one self-contained script
     // ============================================================
@@ -1126,33 +915,32 @@ Sois très pro-actif, précis et utilise un ton persuasif (B3+).`;
         let lastLoadError = null;
 
         async function loadReviews() {
-            // Tentative de récupération automatique du place_id s'il est manquant
+            // Cas 1 : clé Places absente
+            if (!keys.placesApi) return { source:'demo', reason:'Clé Google Places API non renseignée dans Paramètres → Clés API' };
+
+            // Cas 2 : établissement non confirmé
+            if (!est.googleVerified) return { source:'demo', reason:'Aucun établissement confirmé — allez dans Paramètres pour le rechercher' };
+
+            // Cas 3 : place_id absent (établissement confirmé avant la dernière màj) → on le récupère
             if (!est.googlePlaceId) {
                 try {
-                    const searchUrl = `/api/audit?q=${encodeURIComponent(est.googleName || est.name)}&placesKey=${encodeURIComponent(keys.placesApi || '')}`;
+                    const searchUrl = `/api/audit?q=${encodeURIComponent(est.googleName || est.name)}&placesKey=${encodeURIComponent(keys.placesApi)}`;
                     const sr = await fetch(searchUrl);
                     const sd = await sr.json();
-                    
                     if (sd.place_id) {
                         est.googlePlaceId = sd.place_id;
-                        est.googleVerified = true;
                         localStorage.setItem('gbp_establishments', JSON.stringify(state.establishments));
                     } else {
-                        return { source:'demo', reason:'place_id introuvable — vérifiez le nom du client dans Paramètres' };
+                        return { source:'demo', reason:'place_id introuvable — ouvrez Paramètres, cliquez "Changer" puis "Confirmer" à nouveau' };
                     }
                 } catch (e) {
-                    return { source:'demo', reason:'Erreur réseau lors de la recherche du client.' };
+                    return { source:'demo', reason:'Erreur lors de la récupération du place_id : ' + e.message };
                 }
-            }
-
-            // A ce stade, si l'établissement n'a toujours pas de place_id, impossible de continuer
-            if (!est.googleVerified || !est.googlePlaceId) {
-                return { source:'demo', reason:'Aucun établissement validé par Google. Mettez le profil à jour dans les Paramètres.' };
             }
 
             // Cas 4 : fetch des avis
             try {
-                const url = `/api/reponses-aux-avis/get-reviews?placeId=${encodeURIComponent(est.googlePlaceId)}&placesKey=${encodeURIComponent(keys.placesApi || '')}`;
+                const url = `/api/reponses-aux-avis/get-reviews?placeId=${encodeURIComponent(est.googlePlaceId)}&placesKey=${encodeURIComponent(keys.placesApi)}`;
                 const resp = await fetch(url);
                 const data = await resp.json();
                 if (data.reviews && data.reviews.length > 0) return { source:'live', reviews: data.reviews };
@@ -1849,6 +1637,4 @@ Sois très pro-actif, précis et utilise un ton persuasif (B3+).`;
 
         // renderParams();
         navigateTo('dashboard');
-    </script>
-</body>
-</html>
+    

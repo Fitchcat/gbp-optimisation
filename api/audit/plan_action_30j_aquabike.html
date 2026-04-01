@@ -1,0 +1,368 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.root{padding:1.5rem 0;max-width:720px;font-family:var(--font-sans)}
+.tabs{display:flex;gap:6px;margin-bottom:1.25rem;flex-wrap:wrap}
+.tab{padding:6px 14px;border:0.5px solid var(--color-border-secondary);border-radius:20px;font-size:13px;cursor:pointer;background:transparent;color:var(--color-text-secondary);transition:all .15s}
+.tab.active{background:var(--color-text-primary);color:var(--color-background-primary);border-color:var(--color-text-primary)}
+.panel{display:none}
+.panel.active{display:block}
+
+.week{margin-bottom:1.25rem}
+.week-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.week-label{font-size:13px;font-weight:500;color:var(--color-text-primary)}
+.week-tag{font-size:11px;padding:2px 8px;border-radius:20px}
+.tasks{display:flex;flex-direction:column;gap:7px}
+.task{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px 14px;display:flex;align-items:flex-start;gap:10px}
+.task-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.task-body{flex:1}
+.task-title{font-size:13px;font-weight:500;color:var(--color-text-primary)}
+.task-desc{font-size:12px;color:var(--color-text-secondary);margin-top:2px;line-height:1.5}
+.task-meta{display:flex;gap:6px;margin-top:5px;flex-wrap:wrap}
+.chip{font-size:11px;padding:1px 7px;border-radius:20px}
+.chip-etabl{background:#E6F1FB;color:#0C447C}
+.chip-time{background:#F1EFE8;color:#444441}
+.chip-impact{background:#EAF3DE;color:#27500A}
+
+.content-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:14px 16px;margin-bottom:10px}
+.content-label{font-size:11px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.content-text{font-size:13px;color:var(--color-text-primary);line-height:1.6;white-space:pre-wrap;background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 12px}
+.copy-btn{font-size:12px;padding:4px 10px;margin-top:8px;cursor:pointer}
+
+.bench-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:8px;margin-bottom:1rem}
+.bench-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px 12px}
+.bench-name{font-size:13px;font-weight:500;color:var(--color-text-primary)}
+.bench-row{display:flex;justify-content:space-between;font-size:12px;color:var(--color-text-secondary);margin-top:4px}
+.bench-val{font-weight:500;color:var(--color-text-primary)}
+.gap-card{background:var(--color-background-warning);border-radius:var(--border-radius-md);padding:10px 14px;margin-bottom:8px;font-size:13px;color:var(--color-text-warning)}
+
+.score-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1.25rem}
+.sc{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px;text-align:center}
+.sc-val{font-size:20px;font-weight:500;color:var(--color-text-primary)}
+.sc-lbl{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+</style>
+
+<div class="root">
+  <div class="score-row">
+    <div class="sc"><div class="sc-val" style="color:#BA7517">45</div><div class="sc-lbl">Score actuel</div></div>
+    <div class="sc"><div class="sc-val" style="color:#1D9E75">75+</div><div class="sc-lbl">Objectif 30j</div></div>
+    <div class="sc"><div class="sc-val">6</div><div class="sc-lbl">Actions urgentes</div></div>
+    <div class="sc"><div class="sc-val">3</div><div class="sc-lbl">Fiches GBP</div></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="show('plan')">Plan 30 jours</button>
+    <button class="tab" onclick="show('contenus')">Contenus prêts</button>
+    <button class="tab" onclick="show('bench')">Benchmark concurrents</button>
+  </div>
+
+  <div id="plan" class="panel active">
+
+    <div class="week">
+      <div class="week-head">
+        <span class="week-label">Semaine 1 — Fondations (actions critiques)</span>
+        <span class="week-tag" style="background:#FCEBEB;color:#791F1F">Urgent</span>
+      </div>
+      <div class="tasks">
+        <div class="task">
+          <div class="task-dot" style="background:#E24B4A"></div>
+          <div class="task-body">
+            <div class="task-title">Auditer et harmoniser le NAP sur les 3 fiches GBP</div>
+            <div class="task-desc">Vérifier que Nom / Adresse / Téléphone sont identiques sur GBP, site aquabikecenter.club, Pages Jaunes et masalledesport. Risque : "Le Nuage", "Castelnau" et "Lattes" ont des noms différents selon les sources.</div>
+            <div class="task-meta">
+              <span class="chip chip-etabl">3 établissements</span>
+              <span class="chip chip-time">30 min</span>
+              <span class="chip chip-impact">Impact SEO fort</span>
+            </div>
+          </div>
+        </div>
+        <div class="task">
+          <div class="task-dot" style="background:#E24B4A"></div>
+          <div class="task-body">
+            <div class="task-title">Ajouter l'URL Deciplus dans le champ "Rendez-vous" GBP</div>
+            <div class="task-desc">Dans chaque fiche GBP > Modifier > URL de rendez-vous : coller le lien direct du planning Deciplus de chaque centre. Réduction immédiate de la friction prospect.</div>
+            <div class="task-meta">
+              <span class="chip chip-etabl">3 établissements</span>
+              <span class="chip chip-time">15 min</span>
+              <span class="chip chip-impact">Conversion directe</span>
+            </div>
+          </div>
+        </div>
+        <div class="task">
+          <div class="task-dot" style="background:#E24B4A"></div>
+          <div class="task-body">
+            <div class="task-title">Réécrire la description GBP (750 caractères) pour Montpellier</div>
+            <div class="task-desc">Utiliser le texte prêt dans l'onglet "Contenus prêts". Placer aquabike, Montpellier, aquagym, sauna dès les 250 premiers caractères. Dupliquer en adaptant pour Castelnau et Lattes.</div>
+            <div class="task-meta">
+              <span class="chip chip-etabl">Montpellier en priorité</span>
+              <span class="chip chip-time">20 min</span>
+              <span class="chip chip-impact">Visibilité mots-clés</span>
+            </div>
+          </div>
+        </div>
+        <div class="task">
+          <div class="task-dot" style="background:#E24B4A"></div>
+          <div class="task-body">
+            <div class="task-title">Créer les 6 Q&R dans chaque fiche GBP</div>
+            <div class="task-desc">Section Questions/Réponses > ajouter les questions fréquentes (textes prêts dans "Contenus prêts"). Réduire le taux d'hésitation et signal SEO supplémentaire.</div>
+            <div class="task-meta">
+              <span class="chip chip-etabl">3 établissements</span>
+              <span class="chip chip-time">25 min</span>
+              <span class="chip chip-impact">Conversion + SEO</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="week">
+      <div class="week-head">
+        <span class="week-label">Semaine 2 — Preuve sociale & visuel</span>
+        <span class="week-tag" style="background:#FAEEDA;color:#633806">Prioritaire</span>
+      </div>
+      <div class="tasks">
+        <div class="task">
+          <div class="task-dot" style="background:#BA7517"></div>
+          <div class="task-body">
+            <div class="task-title">Lancer la collecte d'avis avec QR code à l'accueil</div>
+            <div class="task-desc">Créer un QR code vers la fiche GBP de chaque centre. Plastifier et afficher à la sortie des vestiaires. Former le staff à dire "si vous avez apprécié, 30 secondes pour nous aider ?" Cible : 5 avis/semaine par centre pendant 4 semaines.</div>
+            <div class="task-meta">
+              <span class="chip chip-etabl">3 établissements</span>
+              <span class="chip chip-time">2h (création + impression)</span>
+              <span class="chip chip-impact">Classement local</span>
+            </div>
+          </div>
+        </div>
+        <div class="task">
+          <div class="task-dot" style="background:#BA7517"></div>
+          <div class="task-body">
+            <div class="task-title">Séance photo dans chaque centre (20+ photos HD)</div>
+            <div class="task-desc">Planifier une demi-journée par centre. Couvrir : bassins (eau azur + vélos), vestiaires propres, coachs en action, accueil, espace sauna/bien-être, clients consentants pendant la Chill Party. Objectif 20-40 photos par fiche.</div>
+            <div class="task-meta">
+              <span class="chip chip-etabl">3 établissements</span>
+              <span class="chip chip-time">3 × demi-journée</span>
+              <span class="chip chip-impact">Taux de clic ×2-3</span>
+            </div>
+          </div>
+        </div>
+        <div class="task">
+          <div class="task-dot" style="background:#BA7517"></div>
+          <div class="task-body">
+            <div class="task-title">Publier le 1er Google Post (Chill Party du mois)</div>
+            <div class="task-desc">La Chill Party chaque 1er mardi = contenu récurrent parfait. Texte prêt dans "Contenus prêts". Dupliquer sur les 3 fiches. Objectif : 1 post/semaine à maintenir sur 30 jours.</div>
+            <div class="task-meta">
+              <span class="chip chip-etabl">3 établissements</span>
+              <span class="chip chip-time">15 min</span>
+              <span class="chip chip-impact">Fiche "vivante"</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="week">
+      <div class="week-head">
+        <span class="week-label">Semaine 3 — Services, produits & réponses</span>
+        <span class="week-tag" style="background:#EAF3DE;color:#27500A">Important</span>
+      </div>
+      <div class="tasks">
+        <div class="task">
+          <div class="task-dot" style="background:#639922"></div>
+          <div class="task-body">
+            <div class="task-title">Remplir la section Services avec tarifs</div>
+            <div class="task-desc">Ajouter chaque activité comme service distinct : Aquabike (séance, tarif), Aquagym, Aquamix, Aquacardio, Aquaboxing, Bébé Nageur, Accès Sauna, Chill Party. Chaque service = mini-contenu SEO indexé.</div>
+            <div class="task-meta">
+              <span class="chip chip-etabl">3 établissements</span>
+              <span class="chip chip-time">45 min</span>
+              <span class="chip chip-impact">SEO + conversion</span>
+            </div>
+          </div>
+        </div>
+        <div class="task">
+          <div class="task-dot" style="background:#639922"></div>
+          <div class="task-body">
+            <div class="task-title">Créer des fiches Produits (abonnements & cartes)</div>
+            <div class="task-desc">Section Produits GBP : Abonnement mensuel, Carte 10 séances, Abonnement annuel, Offre découverte. Ajouter les prix. Rare dans la concurrence locale = avantage immédiat.</div>
+            <div class="task-meta">
+              <span class="chip chip-etabl">3 établissements</span>
+              <span class="chip chip-time">30 min</span>
+              <span class="chip chip-impact">Différenciation</span>
+            </div>
+          </div>
+        </div>
+        <div class="task">
+          <div class="task-dot" style="background:#639922"></div>
+          <div class="task-body">
+            <div class="task-title">Répondre à tous les avis existants (avec mots-clés)</div>
+            <div class="task-desc">Utiliser le modèle de réponse prêt dans "Contenus prêts". Intégrer systématiquement "aquabike [ville]" ou "aquagym [ville]" dans chaque réponse. Cible : 100% des avis traités en <48h désormais.</div>
+            <div class="task-meta">
+              <span class="chip chip-etabl">3 fiches GBP</span>
+              <span class="chip chip-time">1h</span>
+              <span class="chip chip-impact">SEO local</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="week">
+      <div class="week-head">
+        <span class="week-label">Semaine 4 — Rythme & benchmark</span>
+        <span class="week-tag" style="background:#E6F1FB;color:#0C447C">Consolidation</span>
+      </div>
+      <div class="tasks">
+        <div class="task">
+          <div class="task-dot" style="background:#378ADD"></div>
+          <div class="task-body">
+            <div class="task-title">Mettre en place le calendrier éditorial de posts (6 semaines)</div>
+            <div class="task-desc">Planifier 6 posts à l'avance : Chill Party récurrente, offre découverte -50%, témoignage client, nouveau créneau, avant/après résultat client, actualité coach. 1 post par semaine minimum.</div>
+            <div class="task-meta">
+              <span class="chip chip-etabl">3 établissements</span>
+              <span class="chip chip-time">1h</span>
+              <span class="chip chip-impact">Algorithme Google</span>
+            </div>
+          </div>
+        </div>
+        <div class="task">
+          <div class="task-dot" style="background:#378ADD"></div>
+          <div class="task-body">
+            <div class="task-title">Benchmark concurrents et ajustement catégories GBP</div>
+            <div class="task-desc">Comparer les catégories GBP de VayaForm, Bahia Club Center et AquaeFORME. Ajouter les catégories secondaires manquantes : "Centre de bien-être", "Piscine", "Club de natation" selon ce que les concurrents exploitent.</div>
+            <div class="task-meta">
+              <span class="chip chip-etabl">Audit concurrents</span>
+              <span class="chip chip-time">45 min</span>
+              <span class="chip chip-impact">Local pack</span>
+            </div>
+          </div>
+        </div>
+        <div class="task">
+          <div class="task-dot" style="background:#378ADD"></div>
+          <div class="task-body">
+            <div class="task-title">Vérifier la position dans le local pack sur 5 requêtes cibles</div>
+            <div class="task-desc">Tester depuis Montpellier : "aquabike Montpellier", "aquagym Montpellier", "aquabike Castelnau", "cours aqua Montpellier", "aquabike près de moi". Photographier les positions pour mesurer l'évolution à J+60.</div>
+            <div class="task-meta">
+              <span class="chip chip-etabl">Toutes fiches</span>
+              <span class="chip chip-time">20 min</span>
+              <span class="chip chip-impact">Mesure de base</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="contenus" class="panel">
+    <div class="content-card">
+      <div class="content-label">Description GBP — Montpellier Port Marianne (750 car.)</div>
+      <div class="content-text" id="desc-text">Centre d'aquabike et aquagym à Montpellier Port Marianne — 10 ans d'expérience, 3 centres en Occitanie. Cours d'aquabike, aquamix, aquacardio et aquagym accessibles à tous les niveaux, toute la journée. Luttez contre la cellulite, tonifiez votre corps et brûlez des calories dans nos bassins chauffés encadrés par des coachs diplômés. Espace bien-être avec sauna, hammam et jacuzzi après votre séance. Bébé Nageur et Jardin Aquatique pour les enfants. Soirées Chill Party chaque 1er mardi du mois. Réservation en ligne 24h/24. Pas de frais d'inscription. Ouvert du lundi au vendredi 9h-20h, samedi-dimanche 9h-12h.</div>
+      <button class="copy-btn" onclick="copyText('desc-text')">Copier le texte</button>
+    </div>
+
+    <div class="content-card">
+      <div class="content-label">SMS post-séance — collecte d'avis (à envoyer 30 min après)</div>
+      <div class="content-text" id="sms-text">Bonjour [Prénom], merci pour votre séance d'aquabike à Montpellier ! Si vous avez apprécié, 30 secondes suffisent pour nous laisser un avis Google : [LIEN_FICHE_GBP] Ça nous aide énormément. À bientôt dans les bassins !</div>
+      <button class="copy-btn" onclick="copyText('sms-text')">Copier le texte</button>
+    </div>
+
+    <div class="content-card">
+      <div class="content-label">6 Q&R à copier dans la section Questions/Réponses GBP</div>
+      <div class="content-text" id="qr-text">Q : L'eau des bassins est-elle chauffée ?
+R : Oui, nos bassins sont chauffés à 30°C toute l'année pour un confort optimal pendant vos séances d'aquabike à Montpellier.
+
+Q : Faut-il savoir nager pour faire de l'aquabike ?
+R : Non, l'aquabike se pratique debout dans l'eau — aucune compétence en natation n'est requise. Nos cours sont accessibles à tous les niveaux.
+
+Q : Faut-il apporter un bonnet de bain ?
+R : Le bonnet n'est pas obligatoire. Prévoyez simplement votre maillot de bain et une serviette. Nous mettons des casiers à votre disposition.
+
+Q : Combien coûte une séance d'aquabike ?
+R : Nous proposons plusieurs formules sans frais d'inscription : à la séance, carte 10 séances, ou abonnement mensuel. Contactez-nous ou réservez directement en ligne via notre planning.
+
+Q : Peut-on venir sans réservation ?
+R : La réservation en ligne est recommandée pour garantir votre place, les cours affichant souvent complet. Réservez 24h/24 sur notre planning Deciplus.
+
+Q : Les Chill Party sont-elles accessibles sans abonnement ?
+R : Oui ! Les soirées Chill Party (chaque 1er mardi du mois, 20h30-22h30) sont ouvertes à tous : séance d'aquabike exclusive + cocktail dînatoire + sauna illimité.</div>
+      <button class="copy-btn" onclick="copyText('qr-text')">Copier le texte</button>
+    </div>
+
+    <div class="content-card">
+      <div class="content-label">Modèle réponse avis positif (avec mots-clés SEO)</div>
+      <div class="content-text" id="rep-text">Merci beaucoup pour ce retour [Prénom] ! Nous sommes ravis que votre séance d'aquabike à Montpellier vous ait plu et que [ÉLÉMENT MENTIONNÉ : l'ambiance / les coachs / les résultats] vous ait convaincu(e). C'est notre mission au quotidien dans nos centres d'aquagym de Montpellier et Castelnau. À très bientôt dans les bassins !</div>
+      <button class="copy-btn" onclick="copyText('rep-text')">Copier le texte</button>
+    </div>
+
+    <div class="content-card">
+      <div class="content-label">Google Post — Chill Party mensuelle</div>
+      <div class="content-text" id="post-text">Soirée Chill Party ce mardi [DATE] à 20h30 — Aquabike Center Montpellier Port Marianne
+
+Au programme : 1 séance d'aquabike exclusive + cocktail dînatoire + sauna illimité toute la soirée.
+
+Une expérience unique pour allier sport aquatique et détente dans nos bassins chauffés à 30°C.
+
+Places limitées — réservez dès maintenant via notre planning en ligne.
+[LIEN_DECIPLUS]</div>
+      <button class="copy-btn" onclick="copyText('post-text')">Copier le texte</button>
+    </div>
+  </div>
+
+  <div id="bench" class="panel">
+    <div class="bench-grid">
+      <div class="bench-card">
+        <div class="bench-name">Aquabike Center</div>
+        <div class="bench-row"><span>Établissements</span><span class="bench-val">3</span></div>
+        <div class="bench-row"><span>Avis estimés</span><span class="bench-val" style="color:#BA7517">~20-50</span></div>
+        <div class="bench-row"><span>Google Posts</span><span class="bench-val" style="color:#E24B4A">Aucun</span></div>
+        <div class="bench-row"><span>Score GBP</span><span class="bench-val" style="color:#BA7517">45/100</span></div>
+      </div>
+      <div class="bench-card">
+        <div class="bench-name">VayaForm</div>
+        <div class="bench-row"><span>Établissements</span><span class="bench-val">1</span></div>
+        <div class="bench-row"><span>Avis estimés</span><span class="bench-val" style="color:#639922">~80-120</span></div>
+        <div class="bench-row"><span>Site SEO</span><span class="bench-val" style="color:#639922">Optimisé</span></div>
+        <div class="bench-row"><span>Position</span><span class="bench-val" style="color:#639922">Top 3</span></div>
+      </div>
+      <div class="bench-card">
+        <div class="bench-name">Bahia Club Center</div>
+        <div class="bench-row"><span>Établissements</span><span class="bench-val">1</span></div>
+        <div class="bench-row"><span>Avis estimés</span><span class="bench-val" style="color:#BA7517">~40-60</span></div>
+        <div class="bench-row"><span>Ancienneté</span><span class="bench-val">Depuis 1987</span></div>
+        <div class="bench-row"><span>Position</span><span class="bench-val" style="color:#BA7517">Variable</span></div>
+      </div>
+    </div>
+
+    <div class="gap-card">Avantage structurel d'Aquabike Center : 3 établissements = 3 fiches GBP = 3 fois plus de chances d'apparaître dans le local pack sur des requêtes géolocalisées. Aucun concurrent n'a cette couverture géographique. C'est sous-exploité.</div>
+
+    <div class="content-card">
+      <div class="content-label">Requêtes cibles à dominer (à tester depuis chaque zone)</div>
+      <div class="content-text">aquabike Montpellier → fiche Port Marianne / Le Nuage
+aquagym Montpellier → fiche Port Marianne / Le Nuage
+aquabike Castelnau-le-Lez → fiche Castelnau
+aquabike Lattes → fiche Lattes
+cours aqua Montpellier → toutes fiches
+aquabike près de moi → selon géolocalisation utilisateur
+aquabike Port Marianne → fiche Montpellier
+bien-être aquatique Montpellier → fiche Montpellier</div>
+    </div>
+
+    <button onclick="sendPrompt('Sur la base de cet audit GBP Aquabike Center Montpellier (score 45/100), génère : 1) une stratégie complète pour dépasser VayaForm sur aquabike Montpellier en 60 jours, 2) un calendrier de posts Google pour les 8 prochaines semaines avec les textes complets, 3) une séquence SMS de collecte d\'avis sur 4 semaines pour les 3 centres')" style="width:100%;margin-top:8px">Générer la stratégie complète pour dépasser VayaForm ↗</button>
+  </div>
+</div>
+
+<script>
+function show(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+function copyText(id){
+  const el=document.getElementById(id);
+  navigator.clipboard.writeText(el.textContent).then(()=>{
+    const btn=el.nextElementSibling;
+    const orig=btn.textContent;
+    btn.textContent='Copié !';
+    setTimeout(()=>btn.textContent=orig,2000);
+  });
+}
+</script>

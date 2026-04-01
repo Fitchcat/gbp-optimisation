@@ -1,10 +1,13 @@
 // api/audit.js – Vercel Serverless Function
-// Scrapes Google Search Knowledge Panel for a business name.
+// Fetches business data from Google.
+// Strategy: Google Places API (if GOOGLE_PLACES_API_KEY is set) → scraping fallback.
+//
+// To enable real data: set GOOGLE_PLACES_API_KEY in your environment variables.
+// Get a free key at: https://console.cloud.google.com → APIs → Places API
 
 const fetch = require('node-fetch');
 const cheerio = require('cheerio');
 
-// Random user agents to avoid bot detection
 const USER_AGENTS = [
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
@@ -19,25 +22,88 @@ module.exports = async (req, res) => {
     const { q } = req.query;
     if (!q) return res.status(400).json({ error: 'Missing ?q= parameter' });
 
+    // ── Priority 1: Google Places API ──────────────────────────────
+    const PLACES_KEY = req.query.placesKey || process.env.GOOGLE_PLACES_API_KEY;
+    let apiFailedMessage = null;
+    if (PLACES_KEY) {
+        try {
+            const result = await fetchFromPlacesApi(q, PLACES_KEY);
+            if (result) return res.status(200).json(result);
+        } catch (err) {
+            console.error('Places API error, falling back to scrape:', err.message);
+            apiFailedMessage = err.message;
+            // Ne pas retourner l'erreur directement, on tente le scrape
+        }
+    }
+
+    // ── Priority 2: Scraping fallback ──────────────────────────────
     try {
         const result = await scrape(q);
         return res.status(200).json(result);
     } catch (err) {
         console.error('Scrape error:', err.message);
-        // Return partial result so frontend can still work
         return res.status(200).json({
-            name: q,
-            source: 'scrape_failed',
-            error: err.message,
-            user_ratings_total: null,
-            rating: null,
-            website: null,
-            photos: [],
-            types: [],
-            opening_hours: null
+            name: q, source: 'scrape_failed', error: err.message,
+            user_ratings_total: null, rating: null, website: null,
+            photos: [], types: [], opening_hours: null
         });
     }
 };
+
+async function fetchFromPlacesApi(query, key) {
+    // Text Search → returns best matching place with all useful fields
+    const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&language=fr&key=${key}`;
+    const res = await fetch(url, { timeout: 8000 });
+    const data = await res.json();
+
+    if (data.status !== 'OK' || !data.results || data.results.length === 0) {
+        throw new Error(data.status + (data.error_message ? ': ' + data.error_message : ''));
+    }
+
+    const p = data.results[0];
+
+    // Fetch full details (website + opening_hours are not in text search results)
+    let website = null;
+    let opening_hours = null;
+    let google_url = null;
+    let reviews = [];
+    if (p.place_id) {
+        try {
+            const detailUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${p.place_id}&fields=website,opening_hours,url,reviews&language=fr&key=${key}`;
+            const detailRes = await fetch(detailUrl, { timeout: 6000 });
+            const detail = await detailRes.json();
+            if (detail.status === 'OK' && detail.result) {
+                website = detail.result.website || null;
+                opening_hours = detail.result.opening_hours || null;
+                google_url = detail.result.url || null;
+                reviews = detail.result.reviews || [];
+            }
+        } catch { /* non-blocking */ }
+    }
+
+    return {
+        name:               p.name,
+        formatted_address:  p.formatted_address,
+        rating:             p.rating || null,
+        user_ratings_total: p.user_ratings_total || 0,
+        website,
+        photos:             p.photos || [],
+        types:              p.types || [],
+        opening_hours,
+        place_id:           p.place_id,
+        google_url:         google_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name)}&query_place_id=${p.place_id}`,
+        source:             'google_places_api',
+        // New heuristic flags
+        has_replies:        (reviews || []).some(r => r.author_name && (r.text || r.rating) && (r.relative_time_description || r.time)), 
+        // Note: owner_answer is the field name in Places API for owner responses
+        has_owner_reply:    (reviews || []).some(r => r.author_name && r.owner_answer),
+        has_questions:      false, // Placeholder for scrape
+        has_posts:          false, // Placeholder for scrape
+        has_services:       (p.types || []).length > 5, 
+        has_products:       false,
+        address_components: p.address_components || []
+    };
+}
 
 async function scrape(query) {
     const ua = USER_AGENTS[Math.floor(Math.random() * USER_AGENTS.length)];
@@ -129,6 +195,14 @@ function parseHtml(html, query) {
     // ─── Has hours ───────────────────────────────────────────────
     const hasHours = fullText.match(/(lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)/i);
     result.opening_hours = hasHours ? { weekday_text: ['L','M','M','J','V','S','D'] } : null;
+
+    // ─── Detect advanced sections ────────────────────────────────
+    result.has_questions = fullText.includes('Questions et réponses') || html.includes('id="questions-and-answers"');
+    result.has_posts     = fullText.includes('Mises à jour') || fullText.includes('Google Post');
+    result.has_services  = fullText.includes('Services') || fullText.includes('Prestations');
+    result.has_products  = fullText.includes('Produits') || fullText.includes('Boutique');
+    result.has_replies   = fullText.includes('réponse du propriétaire') || fullText.includes('Owner reply');
+    result.has_videos    = fullText.includes('Vidéos') || html.includes('type="video"');
 
     // ─── Category ────────────────────────────────────────────────
     result.types = result.rating ? ['establishment'] : [];
