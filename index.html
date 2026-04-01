@@ -1627,12 +1627,21 @@ Sois très pro-actif, précis et utilise un ton persuasif (B3+).`;
                     <a id="oauth-link" href="/api/reponses-aux-avis/oauth-start" class="btn btn-primary" style="font-size:.8rem">
                       <i class="fab fa-google"></i> Obtenir le Refresh Token
                     </a>
-                    <span style="font-size:.75rem;color:var(--text-secondary)">Renseignez Client ID & Secret d'abord</span>
+                    <div style="font-size:.72rem;background:rgba(255,152,0,0.1);color:#ffa726;padding:8px 12px;border-radius:8px;border:1px solid rgba(255,152,0,0.2);flex:1;min-width:200px">
+                      <i class="fas fa-info-circle"></i> <b>URI de redirection à autoriser :</b><br>
+                      <code id="current-redirect-uri" style="font-size:.68rem;color:white;display:inline-block;margin-top:4px">...</code>
+                    </div>
                   </div>
                 </div>
               </div>
 
             </div>`;
+
+            const uriEl = document.getElementById('current-redirect-uri');
+            if (uriEl) {
+                const base = window.location.origin;
+                uriEl.textContent = `${base}/api/reponses-aux-avis/oauth-callback`;
+            }
 
             bindParamsEvents();
         }
